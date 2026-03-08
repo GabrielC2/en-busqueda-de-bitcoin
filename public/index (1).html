@@ -1,0 +1,1632 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>En Búsqueda de Bitcoin — Juego Educativo</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bangers&family=Comic+Neue:ital,wght@0,400;0,700;1,400&family=Space+Mono:wght@400;700&display=swap');
+
+:root {
+  --ink: #1a0a2e;
+  --paper: #fdf6e3;
+  --gold: #f7c948;
+  --orange: #ff6b35;
+  --blue: #2563eb;
+  --red: #dc2626;
+  --green: #16a34a;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: var(--ink); font-family: 'Comic Neue', cursive; overflow-x: hidden; min-height: 100vh; }
+
+.screen { display: none; min-height: 100vh; }
+.screen.active { display: flex; flex-direction: column; }
+
+/* ═══ INTRO ═══ */
+#screen-intro { align-items: center; justify-content: center; padding: 2rem; position: relative; overflow: hidden; }
+#screen-intro::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 20% 80%, rgba(247,201,72,0.15) 0%, transparent 50%),
+              radial-gradient(circle at 80% 20%, rgba(37,99,235,0.15) 0%, transparent 50%);
+}
+.intro-content { text-align: center; position: relative; z-index: 2; max-width: 560px; }
+.bitcoin-logo { font-size: 5rem; animation: float 3s ease-in-out infinite; display: block; margin-bottom: 1rem; }
+@keyframes float { 0%,100%{transform:translateY(0) rotate(-5deg)} 50%{transform:translateY(-15px) rotate(5deg)} }
+.intro-title { font-family: 'Bangers', cursive; font-size: clamp(2rem,7vw,3.5rem); color: var(--gold); letter-spacing: 3px; text-shadow: 4px 4px 0 var(--orange); line-height: 1.1; margin-bottom: 0.5rem; }
+.intro-subtitle { font-family: 'Bangers', cursive; font-size: clamp(1rem,2.5vw,1.5rem); color: white; letter-spacing: 2px; margin-bottom: 1.5rem; opacity: 0.75; }
+.intro-desc { background: rgba(255,255,255,0.04); border: 2px solid var(--gold); border-radius: 8px; padding: 1.2rem; color: rgba(255,255,255,0.8); font-size: 0.9rem; line-height: 1.7; margin-bottom: 1.8rem; text-align: left; }
+.intro-steps { display: grid; gap: 0.5rem; }
+.step-row { display: flex; align-items: center; gap: 0.6rem; font-size: 0.88rem; }
+.step-icon { font-size: 1.1rem; width: 28px; flex-shrink: 0; }
+.btn-primary { font-family: 'Bangers', cursive; font-size: clamp(1.2rem,3vw,1.6rem); letter-spacing: 3px; background: var(--gold); color: var(--ink); border: 4px solid var(--ink); padding: 0.75rem 2.5rem; border-radius: 4px; cursor: pointer; box-shadow: 5px 5px 0 var(--ink); transition: transform 0.1s, box-shadow 0.1s; }
+.btn-primary:hover { transform: translate(-2px,-2px); box-shadow: 7px 7px 0 var(--ink); }
+
+/* ═══ MODAL NOMBRE ═══ */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; align-items: center; justify-content: center; z-index: 1000; }
+.modal-overlay.show { display: flex; }
+.modal-box { background: var(--paper); color: var(--ink); padding: 2rem; border-radius: 12px; text-align: center; max-width: 400px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.5); animation: modalPop 0.3s ease; }
+@keyframes modalPop { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.modal-title { font-family: 'Bangers', cursive; font-size: 1.8rem; color: var(--ink); letter-spacing: 2px; margin-bottom: 0.5rem; }
+.modal-desc { font-size: 1rem; margin-bottom: 0.3rem; }
+.modal-question { font-family: 'Bangers', cursive; font-size: 1.3rem; color: var(--orange); margin-bottom: 1rem; }
+.modal-input { width: 100%; padding: 0.8rem; font-size: 1.2rem; border: 3px solid var(--ink); border-radius: 8px; text-align: center; font-family: 'Comic Neue', cursive; margin-bottom: 1rem; }
+.modal-input:focus { outline: none; border-color: var(--gold); }
+.modal-btn { font-family: 'Bangers', cursive; font-size: 1.2rem; letter-spacing: 2px; background: var(--gold); color: var(--ink); border: 3px solid var(--ink); padding: 0.7rem 2rem; border-radius: 8px; cursor: pointer; box-shadow: 4px 4px 0 var(--ink); transition: transform 0.1s; }
+.modal-btn:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 var(--ink); }
+
+/* ═══ MAP ═══ */
+#screen-map { align-items: center; padding: 1.5rem 1rem; position: relative; overflow: hidden; }
+#screen-map::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 30% 70%, rgba(247,201,72,0.08) 0%, transparent 50%); }
+.map-title { font-family: 'Bangers', cursive; font-size: clamp(2rem,6vw,3.5rem); color: var(--gold); letter-spacing: 4px; text-shadow: 4px 4px 0 var(--orange); text-align: center; margin-bottom: 0.3rem; position: relative; z-index: 2; }
+.map-subtitle { font-family: 'Space Mono', monospace; font-size: 0.75rem; color: rgba(255,255,255,0.5); letter-spacing: 2px; text-align: center; margin-bottom: 0.5rem; position: relative; z-index: 2; }
+.player-greeting { font-family: 'Bangers', cursive; font-size: 1rem; color: var(--gold); letter-spacing: 2px; text-align: center; margin-bottom: 1.5rem; position: relative; z-index: 2; }
+.player-greeting { font-family: 'Bangers', cursive; font-size: 1.1rem; color: var(--gold); letter-spacing: 2px; text-align: center; margin-bottom: 1rem; position: relative; z-index: 2; }
+.chapters-path { display: flex; flex-direction: column; gap: 1rem; width: 100%; max-width: 600px; position: relative; z-index: 2; }
+.path-line { width: 3px; height: 20px; background: rgba(255,255,255,0.15); margin: 0 auto; border-radius: 2px; }
+.chapter-node { display: flex; align-items: center; gap: 1rem; background: rgba(255,255,255,0.04); border: 2px solid rgba(255,255,255,0.12); border-radius: 12px; padding: 1rem 1.2rem; cursor: pointer; transition: all 0.2s; }
+.chapter-node.unlocked { border-color: rgba(247,201,72,0.4); }
+.chapter-node.unlocked:hover { background: rgba(247,201,72,0.08); border-color: var(--gold); transform: translateX(6px); }
+.chapter-node.completed { border-color: rgba(22,163,74,0.5); background: rgba(22,163,74,0.05); }
+.chapter-node.locked { opacity: 0.35; cursor: not-allowed; }
+.node-number { width: 52px; height: 52px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Bangers', cursive; font-size: 1.5rem; flex-shrink: 0; border: 3px solid currentColor; }
+.chapter-node.unlocked .node-number { background: rgba(247,201,72,0.15); color: var(--gold); }
+.chapter-node.completed .node-number { background: rgba(22,163,74,0.2); color: #4ade80; }
+.chapter-node.locked .node-number { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.3); }
+.node-info { flex: 1; }
+.node-title { font-family: 'Bangers', cursive; font-size: 1.2rem; letter-spacing: 1px; color: white; margin-bottom: 0.2rem; }
+.chapter-node.completed .node-title { color: #4ade80; }
+.node-desc { font-size: 0.78rem; color: rgba(255,255,255,0.5); }
+.node-badge { font-size: 0.65rem; font-family: 'Space Mono', monospace; letter-spacing: 1px; padding: 0.2rem 0.5rem; border-radius: 3px; }
+.node-badge.done { background: rgba(22,163,74,0.2); color: #4ade80; border: 1px solid #16a34a; }
+.node-badge.go { background: rgba(247,201,72,0.2); color: var(--gold); border: 1px solid var(--gold); }
+.node-badge.lock { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.3); border: 1px solid rgba(255,255,255,0.1); }
+.map-progress { margin-top: 1.5rem; width: 100%; max-width: 600px; position: relative; z-index: 2; }
+.map-progress-label { font-size: 0.75rem; color: rgba(255,255,255,0.5); font-family: 'Space Mono', monospace; letter-spacing: 1px; margin-bottom: 0.4rem; text-align: center; }
+.map-progress-bar { height: 8px; background: rgba(255,255,255,0.08); border-radius: 4px; overflow: hidden; }
+.map-progress-fill { height: 100%; background: linear-gradient(90deg, var(--gold), var(--orange)); border-radius: 4px; transition: width 0.8s ease; }
+
+/* ═══ COMIC READER - HORIZONTAL ═══ */
+#screen-comic { background: var(--ink); align-items: center; justify-content: center; padding: 1rem; min-height: 100vh; }
+.comic-container { width: 100%; max-width: 1200px; display: flex; flex-direction: column; align-items: center; }
+
+.comic-header { width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding: 0 0.5rem; }
+.back-btn { font-family: 'Bangers', cursive; font-size: 0.9rem; color: rgba(255,255,255,0.6); background: transparent; border: 2px solid rgba(255,255,255,0.2); padding: 0.3rem 0.8rem; border-radius: 4px; cursor: pointer; }
+.back-btn:hover { border-color: var(--gold); color: var(--gold); }
+.comic-chapter-title { font-family: 'Bangers', cursive; font-size: 1.3rem; color: var(--gold); letter-spacing: 2px; }
+.page-indicator { font-family: 'Space Mono', monospace; font-size: 0.9rem; color: rgba(255,255,255,0.5); background: rgba(255,255,255,0.1); padding: 0.3rem 0.8rem; border-radius: 4px; }
+
+/* Header right side */
+.header-right { display: flex; align-items: center; gap: 0.5rem; }
+.info-btn { 
+  width: 32px; 
+  height: 32px; 
+  border-radius: 50%; 
+  background: var(--blue); 
+  color: white; 
+  border: 2px solid white; 
+  font-family: 'Bangers', cursive; 
+  font-size: 1.2rem; 
+  cursor: pointer; 
+  transition: all 0.2s; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center;
+}
+.info-btn:hover { transform: scale(1.1); background: var(--gold); color: var(--ink); }
+
+/* Info Modal */
+.info-modal-overlay { 
+  position: fixed; 
+  inset: 0; 
+  background: rgba(0,0,0,0.85); 
+  display: none; 
+  align-items: center; 
+  justify-content: center; 
+  z-index: 1000; 
+  padding: 1rem;
+}
+.info-modal-overlay.show { display: flex; }
+.info-modal { 
+  background: var(--paper); 
+  color: var(--ink); 
+  border-radius: 12px; 
+  max-width: 600px; 
+  width: 100%; 
+  max-height: 85vh; 
+  overflow-y: auto; 
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  animation: modalPop 0.3s ease;
+}
+@keyframes modalPop { 
+  0% { transform: scale(0.8); opacity: 0; } 
+  100% { transform: scale(1); opacity: 1; } 
+}
+.info-modal-header { 
+  display: flex; 
+  align-items: center; 
+  gap: 0.5rem; 
+  padding: 1rem 1.2rem; 
+  border-bottom: 2px solid rgba(0,0,0,0.1); 
+  position: sticky; 
+  top: 0; 
+  background: var(--paper);
+}
+.info-modal-icon { font-size: 1.5rem; }
+.info-modal-title { font-family: 'Bangers', cursive; font-size: 1.3rem; letter-spacing: 2px; flex: 1; }
+.info-modal-close { 
+  background: rgba(0,0,0,0.1); 
+  border: none; 
+  width: 32px; 
+  height: 32px; 
+  border-radius: 50%; 
+  font-size: 1.2rem; 
+  cursor: pointer; 
+  color: var(--ink);
+  transition: all 0.2s;
+}
+.info-modal-close:hover { background: var(--red); color: white; }
+.info-modal-content { 
+  padding: 1.2rem; 
+  font-size: 0.95rem; 
+  line-height: 1.8; 
+}
+.info-modal-content p { margin-bottom: 1rem; }
+.info-modal-content .highlight { 
+  background: var(--gold); 
+  padding: 0.1rem 0.4rem; 
+  border-radius: 3px; 
+  font-weight: 700; 
+}
+
+/* Comic Page - HORIZONTAL */
+.comic-page-container { 
+  width: 100%; 
+  max-width: 1100px; 
+  position: relative;
+  background: var(--paper);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+}
+.comic-page-wrapper {
+  width: 100%;
+  aspect-ratio: 16/9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+}
+.comic-page-wrapper img { 
+  width: 100%; 
+  height: 100%; 
+  object-fit: contain; 
+  background: white;
+}
+
+/* Navigation */
+.comic-nav { 
+  width: 100%; 
+  max-width: 1100px;
+  display: flex; 
+  justify-content: center; 
+  align-items: center;
+  gap: 1rem; 
+  margin-top: 1.2rem; 
+}
+.nav-btn { 
+  font-family: 'Bangers', cursive; 
+  font-size: 1.1rem; 
+  letter-spacing: 2px; 
+  background: var(--orange); 
+  color: white; 
+  border: 3px solid var(--ink); 
+  padding: 0.6rem 2rem; 
+  border-radius: 6px; 
+  cursor: pointer; 
+  box-shadow: 4px 4px 0 var(--ink); 
+  transition: transform 0.1s, box-shadow 0.1s; 
+}
+.nav-btn:hover:not(:disabled) { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 var(--ink); }
+.nav-btn:disabled { opacity: 0.3; cursor: not-allowed; transform: none; box-shadow: 4px 4px 0 var(--ink); }
+.nav-btn.next { background: var(--gold); color: var(--ink); }
+.nav-btn.question { background: var(--green); }
+
+/* Page dots */
+.page-dots { display: flex; gap: 0.5rem; justify-content: center; margin-top: 0.8rem; }
+.page-dot { width: 12px; height: 12px; border-radius: 50%; background: rgba(255,255,255,0.2); cursor: pointer; transition: all 0.2s; }
+.page-dot.active { background: var(--gold); transform: scale(1.2); }
+.page-dot:hover { background: rgba(247,201,72,0.5); }
+
+/* ═══ RESPONSIVE - MÓVIL ═══ */
+@media (max-width: 768px) {
+  #screen-comic { padding: 0.5rem; }
+  .comic-container { padding: 0; }
+  .comic-header { 
+    padding: 0.5rem; 
+    margin-bottom: 0.5rem;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+  }
+  .comic-chapter-title { 
+    font-size: 1rem; 
+    order: 3;
+    width: 100%;
+    text-align: center;
+  }
+  .back-btn { font-size: 0.8rem; padding: 0.3rem 0.6rem; }
+  .page-indicator { font-size: 0.8rem; }
+  .info-btn { width: 28px; height: 28px; font-size: 1rem; }
+  
+  .comic-page-container {
+    border-radius: 4px;
+    max-height: none;
+    overflow: visible;
+  }
+  .comic-page-wrapper {
+    /* En móvil, mostrar imagen completa sin recortar */
+    aspect-ratio: auto !important;
+    min-height: auto;
+    max-height: none;
+    height: auto;
+    overflow: visible;
+  }
+  .comic-page-wrapper img {
+    object-fit: contain;
+    width: 100%;
+    height: auto;
+    max-height: none;
+  }
+  
+  .comic-nav {
+    gap: 0.8rem;
+    margin-top: 1rem;
+    padding: 0 0.5rem;
+  }
+  .nav-btn {
+    font-size: 1rem;
+    padding: 0.8rem 1.5rem;
+    flex: 1;
+    max-width: 180px;
+  }
+  
+  .page-dots { margin-top: 0.5rem; }
+  .page-dot { width: 10px; height: 10px; }
+  
+  /* Modal responsive */
+  .info-modal { 
+    max-height: 90vh; 
+    margin: 0.5rem;
+    border-radius: 8px;
+  }
+  .info-modal-header { padding: 0.8rem 1rem; }
+  .info-modal-title { font-size: 1.1rem; }
+  .info-modal-content { 
+    padding: 1rem; 
+    font-size: 0.9rem; 
+    line-height: 1.7;
+  }
+}
+
+@media (max-width: 400px) {
+  .comic-page-wrapper {
+    min-height: 55vh;
+  }
+  .nav-btn {
+    font-size: 0.9rem;
+    padding: 0.7rem 1rem;
+  }
+}
+
+/* Permitir zoom en la imagen del cómic */
+.comic-page-wrapper img {
+  touch-action: pinch-zoom pan-x pan-y;
+  max-width: 100%;
+  max-height: 100%;
+}
+
+/* ═══ SEARCH (BUSCAR OBJETOS) ═══ */
+#screen-search { background: var(--ink); align-items: center; padding: 1rem; min-height: 100vh; }
+.search-container { width: 100%; max-width: 900px; display: flex; flex-direction: column; align-items: center; }
+.search-header { width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding: 0 0.5rem; flex-wrap: wrap; gap: 0.5rem; }
+.search-title { font-family: 'Bangers', cursive; font-size: 1.2rem; color: var(--gold); letter-spacing: 2px; }
+.search-lives { display: flex; gap: 0.3rem; align-items: center; }
+.search-heart { font-size: 1.5rem; transition: all 0.3s; }
+.search-heart.lost { opacity: 0.2; filter: grayscale(1); }
+.search-found { font-family: 'Space Mono', monospace; font-size: 0.9rem; color: var(--green); background: rgba(22,163,74,0.2); padding: 0.3rem 0.8rem; border-radius: 4px; border: 1px solid var(--green); }
+
+.search-image-container { 
+  position: relative; 
+  width: 100%; 
+  max-width: 800px;
+  background: var(--paper);
+  border-radius: 8px;
+  overflow: visible;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+}
+.search-image { 
+  width: 100%; 
+  height: auto; 
+  display: block;
+  cursor: crosshair;
+  border-radius: 8px;
+}
+
+/* Markers */
+.search-marker { 
+  position: absolute; 
+  pointer-events: none;
+  animation: markerPop 0.3s ease;
+}
+@keyframes markerPop { 
+  0% { transform: scale(0); opacity: 0; } 
+  50% { transform: scale(1.2); } 
+  100% { transform: scale(1); opacity: 1; } 
+}
+.search-marker.success { 
+  width: 60px; 
+  height: 60px; 
+  border: 4px solid var(--green); 
+  border-radius: 50%; 
+  background: rgba(22,163,74,0.2);
+  transform: translate(-50%, -50%);
+}
+.search-marker.fail { 
+  font-size: 3rem; 
+  color: var(--red); 
+  transform: translate(-50%, -50%);
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+.search-instructions { 
+  margin-top: 1rem; 
+  text-align: center; 
+  color: rgba(255,255,255,0.7); 
+  font-size: 0.9rem;
+}
+.search-object-name { 
+  color: var(--gold); 
+  font-family: 'Bangers', cursive; 
+  font-size: 1.3rem; 
+  letter-spacing: 2px;
+}
+
+.search-nav { 
+  width: 100%; 
+  max-width: 800px;
+  display: flex; 
+  justify-content: center; 
+  margin-top: 1.2rem; 
+}
+
+@media (max-width: 768px) {
+  #screen-search { padding: 0.5rem; }
+  .search-header { padding: 0.5rem; }
+  .search-title { font-size: 1rem; order: 3; width: 100%; text-align: center; }
+  .search-heart { font-size: 1.3rem; }
+  .search-image-container { border-radius: 4px; }
+  .search-marker.success { width: 50px; height: 50px; border-width: 3px; }
+  .search-marker.fail { font-size: 2.5rem; }
+  .search-object-name { font-size: 1.1rem; }
+}
+
+/* ═══ QUESTION ═══ */
+#screen-question { background: var(--ink); align-items: center; justify-content: center; padding: 2rem; }
+.question-box { max-width: 600px; width: 100%; text-align: center; }
+.question-badge { font-family: 'Bangers', cursive; font-size: 0.95rem; letter-spacing: 3px; color: var(--ink); background: var(--orange); display: inline-block; padding: 0.3rem 1.5rem; border: 3px solid var(--ink); box-shadow: 4px 4px 0 var(--ink); margin-bottom: 1.2rem; }
+.question-text { font-family: 'Bangers', cursive; font-size: clamp(1.2rem,3.5vw,1.7rem); color: white; letter-spacing: 1px; line-height: 1.4; margin-bottom: 0.6rem; background: rgba(255,255,255,0.05); border: 3px solid rgba(255,255,255,0.15); padding: 1.2rem; border-radius: 8px; }
+.question-hint { color: rgba(255,255,255,0.45); font-size: 0.8rem; margin-bottom: 1.5rem; font-style: italic; }
+.answer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin-bottom: 1.2rem; }
+@media (max-width: 500px) { .answer-grid { grid-template-columns: 1fr; } }
+.answer-btn { font-family: 'Comic Neue', cursive; font-weight: 700; font-size: 0.95rem; background: rgba(255,255,255,0.07); color: white; border: 2.5px solid rgba(255,255,255,0.2); padding: 1rem; border-radius: 8px; cursor: pointer; transition: all 0.15s; text-align: left; line-height: 1.4; }
+.answer-btn:hover { background: rgba(247,201,72,0.12); border-color: var(--gold); color: var(--gold); }
+.answer-btn.correct { background: rgba(22,163,74,0.25); border-color: var(--green); color: #4ade80; }
+.answer-btn.wrong { background: rgba(220,38,38,0.25); border-color: var(--red); color: #f87171; animation: shake 0.4s ease; }
+@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+.feedback-msg { font-family: 'Bangers', cursive; font-size: 1.2rem; letter-spacing: 2px; padding: 0.7rem 1.2rem; border-radius: 6px; display: none; margin-bottom: 0.8rem; }
+.feedback-msg.show { display: block; }
+.feedback-msg.correct { background: rgba(22,163,74,0.18); color: #4ade80; border: 2px solid var(--green); }
+.feedback-msg.wrong { background: rgba(220,38,38,0.18); color: #f87171; border: 2px solid var(--red); }
+
+/* ═══ VICTORY ═══ */
+#screen-victory { background: var(--ink); align-items: center; justify-content: center; padding: 2rem; }
+.confetti-area { position: fixed; inset: 0; pointer-events: none; z-index: 1; }
+.confetti-piece { position: absolute; width: 10px; height: 10px; animation: confettiFall linear infinite; opacity: 0; }
+@keyframes confettiFall { 0%{transform:translateY(-20px) rotate(0deg);opacity:1} 100%{transform:translateY(100vh) rotate(720deg);opacity:0} }
+.victory-content { text-align: center; max-width: 580px; position: relative; z-index: 2; }
+.victory-emoji { font-size: 4rem; display: block; margin-bottom: 0.8rem; animation: bounce 1s ease-in-out infinite; }
+@keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-18px)} }
+.victory-title { font-family: 'Bangers', cursive; font-size: 2.5rem; color: var(--gold); letter-spacing: 4px; text-shadow: 4px 4px 0 var(--orange); margin-bottom: 0.8rem; }
+.victory-message { background: rgba(255,255,255,0.04); border: 3px solid var(--gold); border-radius: 8px; padding: 1.2rem; margin-bottom: 1.2rem; }
+.verdict-text { font-family: 'Bangers', cursive; font-size: 1.3rem; color: var(--gold); letter-spacing: 1px; margin-bottom: 0.4rem; }
+.verdict-body { color: rgba(255,255,255,0.8); font-size: 0.95rem; line-height: 1.7; }
+.fact-highlight { background: var(--gold); color: var(--ink); font-weight: 700; padding: 0.15rem 0.45rem; border-radius: 3px; }
+.facts-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; margin-bottom: 1.2rem; }
+.fact-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; padding: 0.7rem; text-align: center; }
+.fact-card-icon { font-size: 1.3rem; margin-bottom: 0.2rem; }
+.fact-card-label { font-size: 0.65rem; color: rgba(255,255,255,0.45); text-transform: uppercase; letter-spacing: 1px; }
+.fact-card-value { font-family: 'Bangers', cursive; font-size: 0.9rem; color: white; letter-spacing: 1px; }
+.btn-secondary { font-family: 'Bangers', cursive; font-size: 1.1rem; letter-spacing: 2px; background: transparent; color: var(--gold); border: 2px solid var(--gold); padding: 0.5rem 1.5rem; border-radius: 4px; cursor: pointer; margin-top: 0.8rem; transition: all 0.15s; }
+.btn-secondary:hover { background: rgba(247,201,72,0.1); }
+.next-chapter-hint { color: rgba(255,255,255,0.35); font-size: 0.75rem; margin-top: 1rem; font-family: 'Space Mono', monospace; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ INTRO ═══════════════ -->
+<div class="screen active" id="screen-intro">
+  <div class="intro-content">
+    <span class="bitcoin-logo">₿</span>
+    <div class="intro-title">EN BÚSQUEDA DE BITCOIN</div>
+    <div class="intro-subtitle">LA AVENTURA CÓMICA</div>
+    <div class="intro-desc">
+      <strong style="color:var(--gold)">¿Cómo funciona este juego?</strong>
+      <div class="intro-steps" style="margin-top:0.8rem">
+        <div class="step-row"><span class="step-icon">📖</span><span><strong>Lee el cómic</strong> de cada capítulo<br><small style="color:var(--text2)">Descubre cómo nació Bitcoin y qué problema vino a resolver.</small></span></div>
+        <div class="step-row"><span class="step-icon">❓</span><span><strong>Responde la pregunta</strong> de control<br><small style="color:var(--text2)">Demuestra que entendiste el capítulo.</small></span></div>
+        <div class="step-row"><span class="step-icon">🔎</span><span><strong>Encuentra los objetos</strong> escondidos<br><small style="color:var(--text2)">Explora la escena y localiza los elementos relacionados con la historia.</small></span></div>
+        <div class="step-row"><span class="step-icon">🏆</span><span><strong>Desbloquea el siguiente</strong> capítulo<br><small style="color:var(--text2)">Cada paso te acerca más a comprender Bitcoin.</small></span></div>
+      </div>
+    </div>
+    <button class="btn-primary" onclick="startGame()">¡COMENZAR LA AVENTURA! ⚡</button>
+  </div>
+</div>
+
+<!-- ═══════════════ MODAL NOMBRE ═══════════════ -->
+<div class="modal-overlay" id="modal-name">
+  <div class="modal-box">
+    <div class="modal-title">🎮 ¡Bienvenido, Aventurero!</div>
+    <p class="modal-desc">Antes de comenzar, cuéntame...</p>
+    <p class="modal-question">¿Cómo te llamas?</p>
+    <input type="text" id="player-name-input" class="modal-input" placeholder="Tu nombre aquí..." maxlength="20" autocomplete="off">
+    <button class="modal-btn" onclick="saveNameAndStart()">¡EMPEZAR! ⚡</button>
+  </div>
+</div>
+
+<!-- ═══════════════ MAPA ═══════════════ -->
+<div class="screen" id="screen-map">
+  <div class="map-title">MAPA DEL VIAJE</div>
+  <div class="map-subtitle">TU DIPLOMA BITCOIN — 5 CAPÍTULOS</div>
+  <div class="player-greeting" id="player-greeting"></div>
+  <div class="chapters-path" id="chapters-path"></div>
+  <div class="map-progress">
+    <div class="map-progress-label" id="progress-label">PROGRESO: 0 / 5 CAPÍTULOS</div>
+    <div class="map-progress-bar"><div class="map-progress-fill" id="progress-fill" style="width:0%"></div></div>
+  </div>
+</div>
+
+<!-- ═══════════════ COMIC READER ═══════════════ -->
+<div class="screen" id="screen-comic">
+  <div class="comic-container">
+    <div class="comic-header">
+      <button class="back-btn" onclick="goTo('screen-map')">← MAPA</button>
+      <div class="comic-chapter-title" id="comic-title">CAPÍTULO 1</div>
+      <div class="header-right">
+        <button class="info-btn" id="info-btn" onclick="showInfo()">?</button>
+        <div class="page-indicator" id="page-indicator">1 / 4</div>
+      </div>
+    </div>
+    
+    <div class="comic-page-container">
+      <div class="comic-page-wrapper">
+        <img id="comic-image" src="" alt="Cómic">
+      </div>
+    </div>
+    
+    <div class="page-dots" id="page-dots"></div>
+    
+    <div class="comic-nav">
+      <button class="nav-btn" id="btn-prev" onclick="prevPage()">← ANTERIOR</button>
+      <button class="nav-btn next" id="btn-next" onclick="nextPageOrQuestion()">SIGUIENTE ➜</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ INFO MODAL ═══════════════ -->
+<div class="info-modal-overlay" id="info-modal" onclick="closeInfo()">
+  <div class="info-modal" onclick="event.stopPropagation()">
+    <div class="info-modal-header">
+      <span class="info-modal-icon">💡</span>
+      <span class="info-modal-title">¿Sabías que...?</span>
+      <button class="info-modal-close" onclick="closeInfo()">✕</button>
+    </div>
+    <div class="info-modal-content" id="info-modal-content">
+      <!-- Contenido dinámico -->
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ BUSCAR OBJETOS ═══════════════ -->
+<div class="screen" id="screen-search">
+  <div class="search-container">
+    <div class="search-header">
+      <button class="back-btn" onclick="goTo('screen-map')">← MAPA</button>
+      <div class="search-title" id="search-title">🔍 ENCUENTRA LOS OBJETOS</div>
+      <div class="search-lives" id="search-lives">
+        <span class="search-heart">❤️</span>
+        <span class="search-heart">❤️</span>
+        <span class="search-heart">❤️</span>
+      </div>
+    </div>
+    
+    <div class="search-object-name">
+      🔍 Objetos encontrados: <span id="found-count">0</span>/<span id="total-count">4</span>
+    </div>
+    
+    <div class="search-image-container" id="search-container">
+      <img class="search-image" id="search-image" src="" alt="Escena de búsqueda" onclick="handleSearchClick(event)">
+    </div>
+    
+    <div class="search-instructions">
+      Busca los objetos basado en el cómic que leíste. ¡Tienes <strong id="lives-count">3</strong> intentos!
+    </div>
+    
+    <div class="search-nav">
+      <button class="nav-btn" id="btn-search-next" style="display:none" onclick="nextSearchObject()">CONTINUAR ➜</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ PREGUNTA ═══════════════ -->
+<div class="screen" id="screen-question">
+  <div class="question-box">
+    <div class="question-badge">⚡ CHECKPOINT ⚡</div>
+    <div class="question-text" id="q-text"></div>
+    <div class="question-hint">💡 Recuerda lo que leíste en el cómic</div>
+    <div class="answer-grid" id="answer-grid"></div>
+    <div class="feedback-msg" id="feedback-msg"></div>
+  </div>
+</div>
+
+<!-- ═══════════════ VICTORIA ═══════════════ -->
+<div class="screen" id="screen-victory">
+  <div class="confetti-area" id="confetti-area"></div>
+  <div class="victory-content">
+    <span class="victory-emoji" id="v-emoji">🏆</span>
+    <div class="victory-title" id="v-title">¡COMPLETADO!</div>
+    <div class="victory-message">
+      <div class="verdict-text">✅ ¡Lo aprendiste todo!</div>
+      <div class="verdict-body" id="v-body"></div>
+    </div>
+    <div class="facts-grid" id="v-facts"></div>
+    <button class="btn-primary" id="v-next-btn" onclick="nextChapter()">SIGUIENTE CAPÍTULO ➜</button>
+    <br>
+    <button class="btn-secondary" onclick="goTo('screen-map')">🗺️ VER MAPA</button>
+    <div class="next-chapter-hint" id="v-hint"></div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════
+let playerName = '';
+let currentChapter = 0;
+let currentPage = 0;
+let completedChapters = new Set();
+
+// Search state
+let searchLives = 3;
+let searchObjectsFound = 0;
+let foundObjects = [];
+let searchMarkers = [];
+
+// ═══════════════════════════════════════════════════
+// LOCALSTORAGE
+// ═══════════════════════════════════════════════════
+function saveProgress() {
+  const data = {
+    playerName: playerName,
+    completedChapters: Array.from(completedChapters)
+  };
+  localStorage.setItem('bitcoinGame', JSON.stringify(data));
+}
+
+function loadProgress() {
+  const saved = localStorage.getItem('bitcoinGame');
+  if (saved) {
+    const data = JSON.parse(saved);
+    playerName = data.playerName || '';
+    completedChapters = new Set(data.completedChapters || []);
+    return true;
+  }
+  return false;
+}
+
+function startGame() {
+  if (loadProgress() && playerName) {
+    // Ya tiene nombre guardado, ir directo al mapa
+    goTo('screen-map');
+  } else {
+    // Mostrar modal para pedir nombre
+    document.getElementById('modal-name').classList.add('show');
+    document.getElementById('player-name-input').focus();
+  }
+}
+
+function saveNameAndStart() {
+  const input = document.getElementById('player-name-input');
+  const name = input.value.trim();
+  
+  if (!name) {
+    input.style.borderColor = 'var(--red)';
+    input.placeholder = '¡Escribe tu nombre!';
+    return;
+  }
+  
+  playerName = name;
+  saveProgress();
+  document.getElementById('modal-name').classList.remove('show');
+  goTo('screen-map');
+}
+
+// ═══════════════════════════════════════════════════
+// CHAPTER DATA
+// ═══════════════════════════════════════════════════
+const chapters = [
+  // Capítulo 1
+  {
+    id: 1,
+    mapTitle: "¿POR QUÉ NECESITAMOS DINERO?",
+    mapDesc: "Del trueque a las monedas",
+    mapIcon: "💰",
+    title: "CAPÍTULO 1: ¿POR QUÉ NECESITAMOS DINERO?",
+    pages: [
+      "images/Nivel%202/1.png",
+      "images/Nivel%202/2.png",
+      "images/Nivel%202/3.png",
+      "images/Nivel%202/4.png"
+    ],
+    pageExtras: [
+      {
+        title: "El Trueque",
+        content: `<p>Antes de que existiera el dinero, las personas tenían que intercambiar cosas directamente para poder obtener lo que necesitaban. Este sistema se conoce como <span class="highlight">trueque</span>.</p>
+<p>Imagina una pequeña aldea o un mercado antiguo. Cada persona llevaba lo que producía: uno traía manzanas, otro pescado, otro trigo, gallinas o herramientas. La única forma de conseguir algo diferente era <strong>encontrar a alguien que quisiera exactamente lo que tú ofrecías</strong>.</p>
+<p>Por ejemplo, un agricultor con manzanas podía intentar cambiarlas por pescado. Entonces le decía al pescador: "Te doy 5 manzanas por un pescado".</p>
+<p>Pero aquí aparecía un problema muy común. El pescador podía responder: "Hoy no necesito manzanas".</p>
+<p>Y en ese momento el intercambio simplemente <strong>no podía ocurrir</strong>, aunque el agricultor realmente necesitara el pescado.</p>
+<p>Este problema se conoce como <span class="highlight">la coincidencia doble de necesidades</span>.</p>
+<p>Significa que para que el trueque funcione, <strong>ambas personas deben querer exactamente lo que la otra tiene al mismo tiempo</strong>.</p>
+<p>Las personas perdían tiempo buscando a alguien que aceptara su producto, y muchas veces se iban a casa sin poder conseguir lo que necesitaban.</p>
+<p>Por eso, con el paso del tiempo, las sociedades comenzaron a darse cuenta de algo importante: el trueque funcionaba… pero <strong>no era una solución eficiente para una economía que estaba creciendo</strong>.</p>`
+      },
+      {
+        title: "El Nacimiento del Dinero",
+        content: `<p>Después de muchos intentos fallidos con el trueque, las sociedades empezaron a darse cuenta de algo importante.</p>
+<p>El problema no era que las personas no quisieran intercambiar… el problema era <strong>la forma en que lo estaban haciendo</strong>.</p>
+<p>Así que las comunidades comenzaron a buscar una solución más práctica.</p>
+<p>La idea fue sencilla, pero muy poderosa: En lugar de intercambiar productos directamente, usarían <span class="highlight">un objeto que todos aceptaran como medio de intercambio</span>.</p>
+<p>De esta manera, una persona ya no necesitaba encontrar a alguien que quisiera sus manzanas. Podía vender sus manzanas a cambio de ese objeto aceptado por todos… y luego usar ese mismo objeto para comprar cualquier otra cosa que necesitara.</p>
+<p>Ese objeto se convirtió en lo que hoy conocemos como <span class="highlight">dinero</span>.</p>
+<p>A lo largo de la historia, muchas cosas diferentes fueron utilizadas como dinero: conchas marinas, piedras, sal o metales.</p>
+<p>Con el tiempo, los metales como <strong>el oro y la plata</strong> comenzaron a destacar. Eran duraderos, difíciles de falsificar, fáciles de dividir y escasos.</p>
+<p>Fue así como aparecieron las primeras <span class="highlight">monedas metálicas</span>, que facilitaron enormemente el comercio entre las personas.</p>`
+      },
+      {
+        title: "Las 3 Funciones del Dinero",
+        content: `<p>Con el uso del dinero, el comercio se volvió mucho más sencillo. En lugar de buscar a la persona "perfecta" para intercambiar productos, ahora podías vender lo que tenías a cambio de dinero, y después usar ese mismo dinero para comprar cualquier otra cosa.</p>
+<p>Los economistas identificaron <span class="highlight">tres funciones fundamentales del dinero</span>:</p>
+<p><strong>1. Medio de intercambio:</strong> Sirve como intermediario para comprar y vender bienes o servicios. Las personas usan dinero para realizar transacciones de forma más rápida y sencilla.</p>
+<p><strong>2. Unidad de cuenta:</strong> Permite medir y comparar el valor de las cosas. Por ejemplo, un saco de trigo cuesta 10 monedas, una tela 20 y un pan 5. Gracias a esto, es mucho más fácil entender cuánto vale cada producto.</p>
+<p><strong>3. Reserva de valor:</strong> Las personas pueden guardar dinero hoy y usarlo en el futuro. En lugar de almacenar productos que podrían echarse a perder, el dinero permite conservar el valor del trabajo para gastarlo más adelante.</p>
+<p>Gracias a estas tres funciones, el dinero permitió que el comercio fuera más organizado, más eficiente y que las economías pudieran crecer mucho más.</p>`
+      },
+      {
+        title: "Dinero Moderno e Inflación",
+        content: `<p>Con el paso del tiempo, el dinero también evolucionó.</p>
+<p>Hoy en día usamos lo que se conoce como <span class="highlight">dinero moderno</span>, que es emitido por los gobiernos y administrado por instituciones llamadas <strong>bancos centrales</strong>.</p>
+<p>Los bancos centrales son entidades encargadas de gestionar el sistema monetario de un país. Entre otras cosas, deciden cuánta cantidad de dinero debe existir dentro de la economía.</p>
+<p>En algunos momentos, estas instituciones pueden <strong>crear más dinero</strong>. Esto puede ocurrir cuando intentan estimular la economía o responder a crisis financieras.</p>
+<p>Sin embargo, cuando la cantidad de dinero en circulación aumenta demasiado rápido, puede aparecer un fenómeno conocido como <span class="highlight">inflación</span>.</p>
+<p>La inflación ocurre cuando los precios de los bienes y servicios comienzan a subir con el tiempo. En términos simples, significa que <strong>el dinero pierde poder de compra</strong>.</p>
+<p>Por ejemplo, algo que antes costaba 4 unidades de dinero puede pasar a costar 12 con el tiempo.</p>
+<p>Por esta razón, a lo largo de la historia, diferentes grupos han buscado <strong>formas alternativas de dinero</strong> que no puedan ser creadas fácilmente o que no dependan completamente de una autoridad central.</p>
+<p>Esa búsqueda por un tipo de dinero más independiente sería, muchos años después, una de las ideas que inspirarían el nacimiento de <span class="highlight">Bitcoin</span>.</p>`
+      }
+    ],
+    questions: [
+      {
+        text: "¿Cómo intercambiaban bienes las personas antes de que existiera el dinero?",
+        answers: [
+          { text: "A) Usando tarjetas de crédito", correct: false },
+          { text: "B) Mediante el trueque", correct: true },
+          { text: "C) Usando bancos", correct: false },
+          { text: "D) Con transferencias electrónicas", correct: false }
+        ]
+      },
+      {
+        text: "¿Cuál era el principal problema del trueque?",
+        answers: [
+          { text: "A) Los productos eran demasiado caros", correct: false },
+          { text: "B) Las dos personas debían querer exactamente lo que el otro tenía", correct: true },
+          { text: "C) Había demasiado dinero circulando", correct: false },
+          { text: "D) No existían mercados", correct: false }
+        ]
+      },
+      {
+        text: "¿Cuál de estas es una función del dinero?",
+        answers: [
+          { text: "A) Hacer que las cosas sean gratis", correct: false },
+          { text: "B) Crear más productos", correct: false },
+          { text: "C) Servir como medio de intercambio", correct: true },
+          { text: "D) Eliminar el comercio", correct: false }
+        ]
+      },
+      {
+        text: "¿Qué puede suceder cuando se crea demasiado dinero en la economía?",
+        answers: [
+          { text: "A) Los precios bajan mucho", correct: false },
+          { text: "B) Las personas dejan de comprar", correct: false },
+          { text: "C) Desaparece el comercio", correct: false },
+          { text: "D) Ocurre inflación y los precios suben", correct: true }
+        ]
+      }
+    ],
+    searchImage: "images/Nivel%202/1772963639548.png",
+    searchObjects: [
+      { name: "Problemas de trueque", x: 29, y: 28, radius: 14 },
+      { name: "Nacimiento de dinero", x: 85, y: 14, radius: 8 },
+      { name: "Funciones de dinero", x: 67, y: 81, radius: 13 },
+      { name: "Problemas de dinero moderno", x: 59, y: 51, radius: 14 }
+    ],
+    victory: {
+      emoji: "💰",
+      title: "¡CAPÍTULO 2 COMPLETADO!",
+      body: `Has aprendido sobre el <span class="fact-highlight">origen del dinero</span>. Desde el trueque hasta las monedas, el dinero evolucionó para facilitar el intercambio. Pero cuando se crea demasiado... <span class="fact-highlight">la inflación aparece</span>.`,
+      facts: [
+        { icon: "🔄", label: "Sistema", value: "TRUEQUE" },
+        { icon: "🪙", label: "Problema", value: "COINCIDENCIA" },
+        { icon: "💵", label: "Solución", value: "DINERO" },
+        { icon: "📈", label: "Riesgo", value: "INFLACIÓN" }
+      ]
+    }
+  },
+,
+  // Capítulo 2
+  {
+    id: 2,
+    mapTitle: "EL NACIMIENTO DE BITCOIN",
+    mapDesc: "Satoshi Nakamoto y el año 2008",
+    mapIcon: "₿",
+    title: "CAPÍTULO 2: EL NACIMIENTO DE BITCOIN",
+    // Imágenes del cómic - HORIZONTAL (JPG optimizadas)
+    pages: [
+      "images/nivel%201/1%20(1).jpg",
+      "images/nivel%201/2.jpg",
+      "images/nivel%201/3.jpg",
+      "images/nivel%201/4.jpg"
+    ],
+    // Información extra de cada página del cómic
+    pageExtras: [
+      {
+        title: "La Crisis de 2008",
+        content: `<p>En el año <span class="highlight">2008</span> el sistema financiero mundial se metió en un problema muy grande.</p>
+<p>Durante muchos años, los bancos estuvieron prestando dinero para comprar casas. Hasta ahí todo bien. El problema fue que empezaron a prestar dinero casi a cualquiera, incluso a personas que en realidad no tenían cómo pagar esos préstamos.</p>
+<p>Mientras la economía iba bien, nadie decía nada. Las casas subían de precio y parecía que todo funcionaba perfecto.</p>
+<p>Pero llegó el momento en que muchas personas dejaron de poder pagar sus hipotecas. Y cuando eso empezó a pasar una y otra vez… el sistema comenzó a tambalearse.</p>
+<p>Los bancos empezaron a perder muchísimo dinero.</p>
+<p>Uno de los casos más famosos fue <span class="highlight">Lehman Brothers</span>, un banco enorme de Estados Unidos que quebró en septiembre de 2008. Cuando eso pasó, el miedo se regó por todos los mercados financieros.</p>
+<p>Las bolsas se desplomaron, muchas empresas tuvieron problemas y millones de personas en el mundo perdieron su trabajo, sus ahorros o hasta su casa.</p>
+<p>Para evitar que todo el sistema colapsara, los gobiernos tuvieron que rescatar a varios bancos usando dinero público, es decir, <span class="highlight">dinero de la gente</span>.</p>
+<p>Y ahí fue cuando mucha gente empezó a preguntarse algo muy importante:</p>
+<p><strong>¿Por qué el dinero y los bancos funcionan de esta manera?</strong></p>
+<p><strong>¿De verdad necesitamos confiar siempre en los bancos para manejar nuestro dinero?</strong></p>
+<p>En medio de toda esa crisis, alguien empezó a pensar en una idea diferente.</p>
+<p>Una forma de enviar dinero por internet <span class="highlight">sin depender de bancos</span>.</p>
+<p>Y esa idea estaba a punto de cambiar la historia.</p>`
+      },
+      {
+        title: "Satoshi Nakamoto",
+        content: `<p>Después de la crisis financiera de 2008, muchas personas comenzaron a cuestionar cómo funcionaba realmente el sistema del dinero.</p>
+<p>Si los bancos podían quebrar y los gobiernos tenían que rescatarlos con dinero público… entonces algo en el sistema claramente no estaba funcionando bien.</p>
+<p>En medio de todo ese caos, ocurrió algo muy curioso en internet.</p>
+<p>En un foro donde se reunían programadores y expertos en criptografía, apareció un mensaje publicado por alguien que usaba el nombre <span class="highlight">Satoshi Nakamoto</span>.</p>
+<p>Nadie sabía quién era.</p>
+<p>No había foto, no había empresa, no había una dirección clara. Solo ese nombre y una idea que empezó a llamar mucho la atención.</p>
+<p>Satoshi proponía algo muy interesante: crear un sistema de dinero digital que pudiera funcionar directamente entre personas, sin necesidad de bancos.</p>
+<p>Algo parecido a cuando le das dinero en efectivo a alguien… pero usando internet.</p>
+<p>Muchos programadores comenzaron a leer sus mensajes y a discutir la idea. Algunos pensaban que podía funcionar. Otros creían que era imposible.</p>
+<p>Pero había una cosa que todos se preguntaban: <strong>¿Quién era realmente Satoshi Nakamoto?</strong></p>
+<p>Hasta hoy, nadie lo sabe con certeza.</p>
+<p>Lo único que sí sabemos es que poco tiempo después, Satoshi publicó un documento donde explicaba su idea con mucho más detalle. Un documento que cambiaría la historia del dinero.</p>
+<p>Ese documento se conoce como el <span class="highlight">Whitepaper de Bitcoin</span>.</p>`
+      },
+      {
+        title: "El Whitepaper",
+        content: `<p>Después de aparecer en los foros de internet, Satoshi Nakamoto decidió explicar su idea con más detalle.</p>
+<p>El <span class="highlight">31 de octubre de 2008</span>, publicó un documento técnico que hoy se conoce como el Whitepaper de Bitcoin.</p>
+<p>Aunque suena muy formal, en realidad era un documento bastante corto: solo tenía 9 páginas.</p>
+<p>En ese texto, Satoshi explicaba cómo podría funcionar un sistema de dinero digital que no dependiera de bancos ni de gobiernos.</p>
+<p>La idea principal era sencilla de entender: que las personas pudieran enviar dinero directamente entre ellas a través de internet, sin necesidad de intermediarios.</p>
+<p>Para lograrlo, Satoshi propuso usar una red de computadoras conectadas entre sí. Cada computadora ayudaría a verificar y registrar las transacciones que se hicieran en la red.</p>
+<p>Además, todas esas transacciones quedarían guardadas en algo llamado <span class="highlight">bloques</span>.</p>
+<p>Cada bloque estaría conectado con el anterior, formando una especie de cadena de registros.</p>
+<p>Por eso esta tecnología se conoce como <span class="highlight">blockchain</span>, o cadena de bloques.</p>
+<p>En ese momento, la idea parecía muy interesante… pero también bastante difícil de llevar a la realidad.</p>
+<p>Muchos programadores comenzaron a leer el documento y a debatir si realmente podría funcionar.</p>
+<p>Satoshi estaba a punto de demostrar que sí era posible.</p>
+<p>Y muy pronto daría el siguiente paso: Poner en marcha la red de Bitcoin por primera vez.</p>`
+      },
+      {
+        title: "El Bloque Génesis",
+        content: `<p>Después de publicar el Whitepaper y explicar su idea al mundo, Satoshi Nakamoto decidió dar el siguiente paso.</p>
+<p>Ya no era solo teoría. Ahora tocaba poner la idea a funcionar en la vida real.</p>
+<p>El <span class="highlight">3 de enero de 2009</span>, Satoshi encendió por primera vez el software de Bitcoin y creó el primer bloque de toda la red.</p>
+<p>A ese primer bloque se le conoce como el <span class="highlight">Bloque Génesis</span>.</p>
+<p>En pocas palabras, fue el punto de inicio de toda la historia de Bitcoin.</p>
+<p>A partir de ese momento, cada nueva transacción que ocurriera en la red se iría guardando en bloques nuevos, conectados uno tras otro.</p>
+<p>Por eso se le llama cadena de bloques, o blockchain.</p>
+<p>Pero el Bloque Génesis tenía algo especial.</p>
+<p>Dentro de ese bloque, Satoshi dejó un mensaje muy curioso. El texto decía:</p>
+<p><em>"The Times 03/Jan/2009 Chancellor on brink of second bailout for banks."</em></p>
+<p>Era el titular de un periódico de ese mismo día.</p>
+<p>Ese mensaje no estaba ahí por casualidad.</p>
+<p>Era una forma de mostrar el contexto en el que Bitcoin estaba naciendo: un mundo donde los bancos estaban siendo rescatados con dinero público.</p>
+<p>Muchos creen que ese mensaje fue una especie de recordatorio del problema que Bitcoin intentaba resolver.</p>
+<p>A partir de ese momento, la red comenzó a crecer poco a poco.</p>
+<p>Lo que empezó como un experimento entre programadores… terminaría convirtiéndose en una de las innovaciones financieras más importantes de la era digital.</p>`
+      }
+    ],
+    // Pool de 4 preguntas - se selecciona 1 aleatoriamente
+    questions: [
+      {
+        text: "¿Qué evento financiero ocurrió en 2008 y provocó una crisis mundial?",
+        answers: [
+          { text: "A) La caída de Lehman Brothers", correct: true },
+          { text: "B) La creación de Bitcoin", correct: false },
+          { text: "C) La subida del precio del oro", correct: false },
+          { text: "D) La creación de PayPal", correct: false }
+        ]
+      },
+      {
+        text: "¿Cómo se hacía llamar la persona que propuso Bitcoin?",
+        answers: [
+          { text: "A) Vitalik Buterin", correct: false },
+          { text: "B) Satoshi Nakamoto", correct: true },
+          { text: "C) Hal Finney", correct: false },
+          { text: "D) Nick Szabo", correct: false }
+        ]
+      },
+      {
+        text: "¿En qué fecha se publicó el Whitepaper de Bitcoin?",
+        answers: [
+          { text: "A) 31 de octubre de 2008", correct: true },
+          { text: "B) 3 de enero de 2009", correct: false },
+          { text: "C) 15 de septiembre de 2008", correct: false },
+          { text: "D) 12 de diciembre de 2007", correct: false }
+        ]
+      },
+      {
+        text: "¿Cómo se llama el primer bloque creado en la red Bitcoin?",
+        answers: [
+          { text: "A) Block One", correct: false },
+          { text: "B) Genesis Block", correct: true },
+          { text: "C) Bitcoin Block", correct: false },
+          { text: "D) First Chain", correct: false }
+        ]
+      }
+    ],
+    victory: {
+      emoji: "🏆",
+      title: "¡CAPÍTULO 1 COMPLETADO!",
+      body: `Has aprendido sobre el <span class="fact-highlight">origen de Bitcoin</span>. Satoshi Nakamoto publicó el Whitepaper en <span class="fact-highlight">octubre de 2008</span> y minó el Genesis Block el <span class="fact-highlight">3 de enero de 2009</span>.`,
+      facts: [
+        { icon: "🥷", label: "Creador", value: "SATOSHI" },
+        { icon: "📅", label: "Whitepaper", value: "OCT 2008" },
+        { icon: "⛏️", label: "Genesis", value: "3 ENE 2009" },
+        { icon: "₿", label: "Recompensa", value: "50 BTC" }
+      ]
+    },
+    // Escenario de búsqueda
+    searchImage: "images/nivel%201/1772958242991.png",
+    searchObjects: [
+      { name: "Satoshi Nakamoto", x: 69, y: 46, radius: 7 },
+      { name: "Bitcoin Logo", x: 18, y: 19, radius: 7 },
+      { name: "Libro Blanco", x: 43, y: 46, radius: 7 },
+      { name: "Fecha 2009", x: 86, y: 24, radius: 7 }
+    ]
+  },
+  // Capítulo 3
+  {
+    id: 3,
+    mapTitle: "CONOCE A BITCOIN",
+    mapDesc: "Qué es y cómo funciona",
+    mapIcon: "₿",
+    title: "CAPÍTULO 3: CONOCE A BITCOIN",
+    pages: [
+      "images/Nivel%203/1.png",
+      "images/Nivel%203/2.png",
+      "images/Nivel%203/3.png",
+      "images/Nivel%203/4.png",
+      "images/Nivel%203/5.png",
+      "images/Nivel%203/6.png"
+    ],
+    pageExtras: [
+      {
+        title: "¿Qué es Bitcoin?",
+        content: `<p>Durante muchos años, el dinero siempre había estado controlado por gobiernos, bancos y diferentes instituciones financieras.</p>
+<p>Pero en <span class="highlight">2009 apareció algo completamente nuevo</span>. Una forma de dinero que no dependía de un banco, ni de un país, ni de una empresa.</p>
+<p>Ese nuevo tipo de dinero se llama <span class="highlight">Bitcoin</span>.</p>
+<p>Bitcoin es un tipo de dinero digital que funciona completamente en internet. No existe en forma física como las monedas o los billetes. Todo vive dentro de una red de computadoras conectadas alrededor del mundo.</p>
+<p>En lugar de que un banco registre quién tiene el dinero, en Bitcoin esa información se guarda en una red distribuida que funciona las 24 horas del día.</p>
+<p>Gracias a esto, las personas pueden enviar y recibir dinero directamente entre ellas, sin necesidad de intermediarios.</p>
+<p>Por primera vez en la historia, existía un tipo de dinero que funcionaba <strong>de forma global, digital y sin depender de un sistema bancario tradicional</strong>.</p>`
+      },
+      {
+        title: "Sin Intermediarios",
+        content: `<p>Durante mucho tiempo, enviar dinero de una persona a otra siempre ha dependido de <span class="highlight">bancos o intermediarios</span>.</p>
+<p>Los bancos funcionan como intermediarios de confianza. Ellos verifican quién envía el dinero, quién lo recibe y si la transacción cumple con sus reglas. Pero eso también significa que tienen control sobre el proceso.</p>
+<p>Una transferencia puede tardar horas o incluso días. Puede tener comisiones. Y en algunos casos, también puede ser rechazada o bloqueada.</p>
+<p>Bitcoin propone una forma diferente de hacer las cosas.</p>
+<p>En lugar de depender de una institución central, Bitcoin permite que las personas <strong>envíen dinero directamente entre ellas</strong>, usando una red global de computadoras conectadas a internet.</p>
+<p>Cuando alguien envía Bitcoin, la transacción se transmite a la red y es verificada por miles de nodos distribuidos alrededor del mundo.</p>
+<p>Por eso muchas veces se dice que Bitcoin funciona como <span class="highlight">dinero entre pares</span>, o "peer to peer". Sin bancos. Sin intermediarios. Solo una red global abierta que conecta a todo el mundo.</p>`
+      },
+      {
+        title: "Red Descentralizada",
+        content: `<p>Cuando una persona envía Bitcoin, lo que realmente está haciendo es crear una transacción digital desde su computadora o su teléfono.</p>
+<p>Esa transacción no va a un banco ni a una empresa para ser aprobada. En lugar de eso, <span class="highlight">se transmite a toda la red de Bitcoin</span>.</p>
+<p>En cuestión de segundos, miles de computadoras conectadas alrededor del mundo reciben esa información. Estas computadoras se conocen como <span class="highlight">nodos</span>.</p>
+<p>Cada nodo mantiene una copia del registro de la red y participa ayudando a verificar que todo funcione correctamente. Verifican que la persona que envía el Bitcoin realmente tenga ese dinero disponible y que no esté intentando gastar las mismas monedas dos veces.</p>
+<p>A diferencia de un banco tradicional, donde existe un servidor central que controla todo, en Bitcoin <strong>la información está repartida entre miles de computadoras</strong>.</p>
+<p>A esto se le llama una <span class="highlight">red descentralizada</span>.</p>
+<p>Esto significa que no hay una sola empresa, gobierno o institución que tenga el control de la red. El sistema funciona porque miles de participantes independientes mantienen la red activa y verifican las transacciones constantemente.</p>`
+      },
+      {
+        title: "La Blockchain",
+        content: `<p>Cuando una persona envía Bitcoin a otra, la transacción no desaparece ni queda solo en el teléfono o la computadora de quien la hizo.</p>
+<p>Esa operación <span class="highlight">se registra dentro de la red de Bitcoin</span>.</p>
+<p>Pero aquí ocurre algo importante. Esa información no se guarda en un solo lugar. Miles de computadoras alrededor del mundo mantienen una copia de esos registros. Estas computadoras forman parte de la red y almacenan la información para que cualquiera pueda verificar lo que ha ocurrido.</p>
+<p>Una forma sencilla de imaginarlo es pensar en un <span class="highlight">gran libro de cuentas público</span>. En ese libro se anotan todos los movimientos que ocurren en la red.</p>
+<p>Y como miles de computadoras tienen una copia del mismo libro, resulta extremadamente difícil alterar la información o borrar transacciones pasadas.</p>
+<p>A este gran registro público y compartido se le conoce como <span class="highlight">blockchain</span>, que en español significa cadena de bloques.</p>
+<p>La blockchain es básicamente el historial completo de todas las transacciones de Bitcoin, almacenado y protegido por una red global de computadoras.</p>
+<p>Gracias a este sistema, cualquier persona puede verificar las transacciones y confiar en que los registros no han sido modificados.</p>`
+      },
+      {
+        title: "Minería de Bitcoin",
+        content: `<p>Cuando una persona envía Bitcoin, la transacción no se guarda inmediatamente en la blockchain. Primero debe <span class="highlight">ser verificada por la red</span>.</p>
+<p>Para hacer este trabajo, algunas computadoras dentro de la red se encargan de revisar y organizar las transacciones. Agrupan muchas transacciones y las preparan para añadirlas al registro de la blockchain en forma de un nuevo bloque.</p>
+<p>Pero crear un nuevo bloque no es tan simple. Las computadoras deben resolver un tipo de problema matemático que requiere poder de procesamiento. Es una forma de demostrar que realmente están trabajando para ayudar a mantener la red segura.</p>
+<p>La primera computadora que logra resolver ese problema obtiene el derecho de añadir el nuevo bloque a la blockchain. Y como recompensa por ese trabajo, recibe una cantidad de Bitcoin.</p>
+<p>A este proceso se le conoce como <span class="highlight">minería de Bitcoin</span>.</p>
+<p>Y a las computadoras o personas que participan en este proceso se les llama <span class="highlight">mineros</span>.</p>
+<p>Los mineros cumplen una función muy importante: no solo ayudan a confirmar las transacciones, también contribuyen a mantener la red segura y funcionando sin necesidad de una autoridad central.</p>`
+      },
+      {
+        title: "21 Millones",
+        content: `<p>Durante mucho tiempo, el dinero tradicional ha tenido una característica importante.</p>
+<p>Los gobiernos y bancos centrales pueden <span class="highlight">crear más dinero cuando lo consideran necesario</span>. Esto puede suceder en momentos de crisis, para estimular la economía o para financiar diferentes gastos del gobierno.</p>
+<p>El problema aparece cuando se crea demasiado dinero en poco tiempo. Si hay más dinero persiguiendo la misma cantidad de productos, los precios tienden a subir. A este fenómeno se le conoce como <span class="highlight">inflación</span>.</p>
+<p>Bitcoin fue diseñado con una idea diferente.</p>
+<p>En lugar de permitir que la cantidad de dinero aumente sin límite, el sistema establece <strong>una cantidad máxima que puede existir</strong>.</p>
+<p>En total, solo podrán existir <span class="highlight">21 millones de bitcoins</span>.</p>
+<p>A medida que pasa el tiempo, nuevos bitcoins se crean a través del proceso de minería, pero la cantidad que se genera cada vez es menor. Esto hace que la creación de nuevas monedas sea cada vez más lenta.</p>
+<p>Y lo más importante es que <strong>nadie puede cambiar ese límite fácilmente</strong>. No lo controla un gobierno, ni una empresa, ni un banco central. La red completa sigue las mismas reglas del protocolo.</p>
+<p>Por eso muchas personas consideran que Bitcoin es un tipo de dinero <span class="highlight">escaso por diseño</span>.</p>`
+      }
+    ],
+    questions: [
+      {
+        text: "¿Qué es Bitcoin?",
+        answers: [
+          { text: "A) Un banco digital", correct: false },
+          { text: "B) Dinero digital que funciona en internet", correct: true },
+          { text: "C) Una tarjeta de crédito", correct: false },
+          { text: "D) Un videojuego", correct: false }
+        ]
+      },
+      {
+        text: "¿Qué problema tienen las transferencias tradicionales con bancos?",
+        answers: [
+          { text: "A) Son demasiado rápidas", correct: false },
+          { text: "B) No necesitan verificación", correct: false },
+          { text: "C) Dependen de bancos o intermediarios", correct: true },
+          { text: "D) Funcionan sin internet", correct: false }
+        ]
+      },
+      {
+        text: "¿Cómo funciona la red de Bitcoin?",
+        answers: [
+          { text: "A) Un solo banco controla todas las transacciones", correct: false },
+          { text: "B) Solo una computadora verifica todo", correct: false },
+          { text: "C) Miles de computadoras alrededor del mundo mantienen la red", correct: true },
+          { text: "D) Solo gobiernos pueden usarla", correct: false }
+        ]
+      },
+      {
+        text: "¿Qué sucede cuando alguien envía Bitcoin?",
+        answers: [
+          { text: "A) El dinero desaparece", correct: false },
+          { text: "B) La transacción se registra en la red y queda guardada", correct: true },
+          { text: "C) Solo el banco puede verla", correct: false },
+          { text: "D) Se borra después de un día", correct: false }
+        ]
+      },
+      {
+        text: "¿Cuál es el límite máximo de bitcoins que existirán?",
+        answers: [
+          { text: "A) 1 millón", correct: false },
+          { text: "B) 100 millones", correct: false },
+          { text: "C) 10 millones", correct: false },
+          { text: "D) 21 millones", correct: true }
+        ]
+      }
+    ],
+    searchImage: "images/Nivel%203/nivel3.png",
+    searchObjects: [
+      { name: "Objeto 1", x: 39, y: 15, radius: 8 },
+      { name: "Objeto 2", x: 86, y: 18, radius: 11 },
+      { name: "Objeto 3", x: 91, y: 50, radius: 9 },
+      { name: "Objeto 4", x: 90, y: 80, radius: 10 },
+      { name: "Objeto 5", x: 51, y: 47, radius: 12 }
+    ],
+    victory: {
+      emoji: "₿",
+      title: "¡CAPÍTULO 3 COMPLETADO!",
+      body: `Has aprendido qué es <span class="fact-highlight">Bitcoin</span> y cómo funciona esta tecnología revolucionaria.`,
+      facts: [
+        { icon: "₿", label: "Bitcoin", value: "2009" },
+        { icon: "🔗", label: "Tecnología", value: "BLOCKCHAIN" },
+        { icon: "🌐", label: "Red", value: "DESCENTRALIZADA" },
+        { icon: "⚡", label: "Límite", value: "21 MILLONES" }
+      ]
+    }
+  },
+  // Capítulo 4
+  {
+    id: 4,
+    mapTitle: "BITCOIN COMO DINERO SÓLIDO",
+    mapDesc: "Propiedades del buen dinero",
+    mapIcon: "₿",
+    title: "CAPÍTULO 4: BITCOIN COMO DINERO SÓLIDO",
+    pages: [
+      "images/Nivel%204/1.png",
+      "images/Nivel%204/2.png",
+      "images/Nivel%204/3.png",
+      "images/Nivel%204/4.png",
+      "images/Nivel%204/5.png",
+      "images/Nivel%204/6.png"
+    ],
+    questions: [
+      {
+        text: "¿Cuál es el límite máximo de bitcoins que existirán?",
+        answers: [
+          { text: "A) Infinitos", correct: false },
+          { text: "B) 100 millones", correct: false },
+          { text: "C) 21 millones", correct: true },
+          { text: "D) 1 millón", correct: false }
+        ]
+      },
+      {
+        text: "¿Qué hace que Bitcoin sea considerado dinero sólido?",
+        answers: [
+          { text: "A) Lo controla el gobierno", correct: false },
+          { text: "B) Combina escasez, portabilidad y resistencia a la censura", correct: true },
+          { text: "C) Es fácil de falsificar", correct: false },
+          { text: "D) No se puede dividir", correct: false }
+        ]
+      }
+    ],
+    searchImage: "images/Nivel%204/NIVEL4ROOM.png",
+    searchObjects: [
+      { name: "Objeto 1", x: 88, y: 10, radius: 9 },
+      { name: "Objeto 2", x: 24, y: 33, radius: 7 },
+      { name: "Objeto 3", x: 59, y: 40, radius: 8 },
+      { name: "Objeto 4", x: 78, y: 85, radius: 9 }
+    ],
+    victory: {
+      emoji: "₿",
+      title: "¡CAPÍTULO 4 COMPLETADO!",
+      body: `Has aprendido por qué <span class="fact-highlight">Bitcoin es considerado dinero sólido</span>.`,
+      facts: [
+        { icon: "🔒", label: "Límite", value: "21 MILLONES" },
+        { icon: "🌐", label: "Portabilidad", value: "GLOBAL" },
+        { icon: "⚡", label: "Sin censura", value: "LIBRE" }
+      ]
+    }
+  },
+  // Capítulo 5
+  {
+    id: 5,
+    mapTitle: "CÓMO USAR BITCOIN",
+    mapDesc: "Billeteras y Lightning",
+    mapIcon: "⚡",
+    title: "CAPÍTULO 5: CÓMO USAR BITCOIN",
+    pages: [
+      "images/Nivel%205/1.png",
+      "images/Nivel%205/2.png",
+      "images/Nivel%205/3.png",
+      "images/Nivel%205/4.png",
+      "images/Nivel%205/5.png"
+    ],
+    questions: [
+      {
+        text: "¿Qué es una billetera de Bitcoin?",
+        answers: [
+          { text: "A) Un banco digital", correct: false },
+          { text: "B) Software que almacena tus claves privadas", correct: true },
+          { text: "C) Una tarjeta de crédito", correct: false },
+          { text: "D) Un exchange de criptomonedas", correct: false }
+        ]
+      },
+      {
+        text: "¿Qué es la Red Lightning?",
+        answers: [
+          { text: "A) Una billetera fría", correct: false },
+          { text: "B) Una solución para transacciones rápidas y baratas", correct: true },
+          { text: "C) Un tipo de minado", correct: false },
+          { text: "D) Una criptomoneda diferente", correct: false }
+        ]
+      },
+      {
+        text: "¿Cuál es la ventaja principal de Lightning Network?",
+        answers: [
+          { text: "A) Mayor seguridad", correct: false },
+          { text: "B) Transacciones instantáneas con comisiones muy bajas", correct: true },
+          { text: "C) Más privacidad", correct: false },
+          { text: "D) Mayor precio de Bitcoin", correct: false }
+        ]
+      },
+      {
+        text: "¿Qué necesitas para recibir Bitcoin?",
+        answers: [
+          { text: "A) Solo una cuenta bancaria", correct: false },
+          { text: "B) Una dirección de billetera", correct: true },
+          { text: "C) Un exchange", correct: false },
+          { text: "D) Una tarjeta de débito", correct: false }
+        ]
+      }
+    ],
+    searchImage: "images/Nivel%205/NIVEL5CUARTO.png",
+    searchObjects: [
+      { name: "Objeto 1", x: 16, y: 35, radius: 7 },
+      { name: "Objeto 2", x: 47, y: 41, radius: 7 },
+      { name: "Objeto 3", x: 73, y: 67, radius: 7 },
+      { name: "Objeto 4", x: 57, y: 78, radius: 8 }
+    ],
+    victory: {
+      emoji: "⚡",
+      title: "¡CAPÍTULO 5 COMPLETADO!",
+      body: `Has aprendido sobre <span class="fact-highlight">billeteras de Bitcoin</span> y la <span class="fact-highlight">Red Lightning</span> para transacciones rápidas.`,
+      facts: [
+        { icon: "🔐", label: "Claves", value: "PRIVADAS" },
+        { icon: "⚡", label: "Lightning", value: "INSTANTÁNEO" },
+        { icon: "💰", label: "Comisiones", value: "MÍNIMAS" }
+      ]
+    }
+  },
+];
+
+// ═══════════════════════════════════════════════════
+// RENDER MAP
+// ═══════════════════════════════════════════════════
+function renderMap() {
+  // Mostrar saludo personalizado
+  const greeting = document.getElementById('player-greeting');
+  if (greeting) {
+    greeting.textContent = playerName ? `¡Hola, ${playerName}! 🎮` : '';
+  }
+  
+  const path = document.getElementById('chapters-path');
+  path.innerHTML = '';
+  const total = chapters.length;
+  const done = completedChapters.size;
+
+  chapters.forEach((ch, idx) => {
+    if (idx > 0) {
+      const line = document.createElement('div');
+      line.className = 'path-line';
+      path.appendChild(line);
+    }
+
+    const node = document.createElement('div');
+    const isDone = completedChapters.has(idx);
+    const isUnlocked = idx === 0 || completedChapters.has(idx - 1);
+    const isLocked = !isUnlocked;
+
+    node.className = `chapter-node ${isDone ? 'completed' : isLocked ? 'locked' : 'unlocked'}`;
+    if (!isLocked && ch.pages.length > 0) node.onclick = () => startChapter(idx);
+
+    const badge = isDone ? '<span class="node-badge done">✅ COMPLETADO</span>' :
+                  isLocked ? '<span class="node-badge lock">🔒 BLOQUEADO</span>' :
+                  ch.pages.length > 0 ? '<span class="node-badge go">▶ JUGAR</span>' : '<span class="node-badge lock">🔜 PRÓXIMAMENTE</span>';
+
+    node.innerHTML = `
+      <div class="node-number">${isDone ? '✓' : ch.mapIcon}</div>
+      <div class="node-info">
+        <div class="node-title">CAP. ${ch.id}: ${ch.mapTitle}</div>
+        <div class="node-desc">${ch.mapDesc}</div>
+      </div>
+      ${badge}
+    `;
+    path.appendChild(node);
+  });
+
+  const pct = Math.round((done / total) * 100);
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = `PROGRESO: ${done} / ${total} CAPÍTULOS`;
+}
+
+// ═══════════════════════════════════════════════════
+// COMIC READER - HORIZONTAL SLIDES
+// ═══════════════════════════════════════════════════
+function startChapter(idx) {
+  currentChapter = idx;
+  currentPage = 0;
+  renderComic();
+  preloadChapterImages(idx);
+  goTo('screen-comic');
+}
+
+function preloadChapterImages(idx) {
+  const ch = chapters[idx];
+  if (!ch.pages || ch.pages.length === 0) return;
+  
+  ch.pages.forEach((src, i) => {
+    const img = new Image();
+    img.src = src;
+  });
+  
+  // También precargar imagen de búsqueda si existe
+  if (ch.searchImage) {
+    const searchImg = new Image();
+    searchImg.src = ch.searchImage;
+  }
+}
+
+function renderComic() {
+  const ch = chapters[currentChapter];
+  document.getElementById('comic-title').textContent = ch.title;
+  
+  // Mostrar imagen actual
+  const img = document.getElementById('comic-image');
+  img.src = ch.pages[currentPage];
+  
+  // Actualizar indicador
+  document.getElementById('page-indicator').textContent = `${currentPage + 1} / ${ch.pages.length}`;
+  
+  // Mostrar/ocultar botón de info según si hay extras
+  const infoBtn = document.getElementById('info-btn');
+  const hasExtra = ch.pageExtras && ch.pageExtras[currentPage];
+  infoBtn.style.display = hasExtra ? 'flex' : 'none';
+  
+  // Actualizar dots
+  const dots = document.getElementById('page-dots');
+  dots.innerHTML = '';
+  ch.pages.forEach((_, idx) => {
+    const dot = document.createElement('div');
+    dot.className = `page-dot ${idx === currentPage ? 'active' : ''}`;
+    dot.onclick = () => goToPage(idx);
+    dots.appendChild(dot);
+  });
+  
+  // Actualizar botones
+  document.getElementById('btn-prev').disabled = currentPage === 0;
+  
+  const btnNext = document.getElementById('btn-next');
+  if (currentPage >= ch.pages.length - 1) {
+    btnNext.textContent = '❓ RESPONDER';
+    btnNext.className = 'nav-btn question';
+  } else {
+    btnNext.textContent = 'SIGUIENTE ➜';
+    btnNext.className = 'nav-btn next';
+  }
+}
+
+function goToPage(idx) {
+  currentPage = idx;
+  renderComic();
+}
+
+function prevPage() {
+  if (currentPage > 0) {
+    currentPage--;
+    renderComic();
+  }
+}
+
+function nextPageOrQuestion() {
+  const ch = chapters[currentChapter];
+  if (currentPage < ch.pages.length - 1) {
+    currentPage++;
+    renderComic();
+  } else {
+    // Ir a pregunta primero, después búsqueda
+    goToQuestion();
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// QUESTION
+// ═══════════════════════════════════════════════════
+function goToQuestion() {
+  const ch = chapters[currentChapter];
+  const randomQuestion = ch.questions[Math.floor(Math.random() * ch.questions.length)];
+  
+  document.getElementById('q-text').textContent = randomQuestion.text;
+  
+  const grid = document.getElementById('answer-grid');
+  grid.innerHTML = '';
+  randomQuestion.answers.forEach(a => {
+    const btn = document.createElement('button');
+    btn.className = 'answer-btn';
+    btn.textContent = a.text;
+    btn.onclick = () => checkAnswer(btn, a.correct);
+    grid.appendChild(btn);
+  });
+  
+  document.getElementById('feedback-msg').className = 'feedback-msg';
+  goTo('screen-question');
+}
+
+function checkAnswer(btn, isCorrect) {
+  document.querySelectorAll('.answer-btn').forEach(b => b.disabled = true);
+  const fb = document.getElementById('feedback-msg');
+
+  if (isCorrect) {
+    btn.classList.add('correct');
+    fb.textContent = '✅ ¡CORRECTO!';
+    fb.className = 'feedback-msg show correct';
+    // NO marcar como completado aquí, se marca al final de la búsqueda o victoria
+    
+    setTimeout(() => {
+      const ch = chapters[currentChapter];
+      // Si hay objetos de búsqueda, ir a búsqueda, si no, a victoria
+      if (ch.searchImage && ch.searchObjects && ch.searchObjects.length > 0) {
+        startSearch();
+      } else {
+        completedChapters.add(currentChapter);
+        saveProgress();
+        launchConfetti();
+        renderVictory();
+        goTo('screen-victory');
+      }
+    }, 1500);
+  } else {
+    btn.classList.add('wrong');
+    fb.textContent = '❌ ¡Incorrecto! Intenta de nuevo...';
+    fb.className = 'feedback-msg show wrong';
+    setTimeout(() => {
+      btn.classList.remove('wrong');
+      document.querySelectorAll('.answer-btn').forEach(b => b.disabled = false);
+      fb.className = 'feedback-msg';
+    }, 2000);
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// VICTORY
+// ═══════════════════════════════════════════════════
+function renderVictory() {
+  const ch = chapters[currentChapter];
+  const v = ch.victory;
+  
+  document.getElementById('v-emoji').textContent = v.emoji;
+  document.getElementById('v-title').textContent = v.title;
+  document.getElementById('v-body').innerHTML = v.body;
+
+  const facts = document.getElementById('v-facts');
+  facts.innerHTML = v.facts.map(f => `
+    <div class="fact-card">
+      <div class="fact-card-icon">${f.icon}</div>
+      <div class="fact-card-label">${f.label}</div>
+      <div class="fact-card-value">${f.value}</div>
+    </div>
+  `).join('');
+
+  const nextBtn = document.getElementById('v-next-btn');
+  const hint = document.getElementById('v-hint');
+  const nextIdx = currentChapter + 1;
+
+  if (nextIdx < chapters.length && chapters[nextIdx].pages.length > 0) {
+    nextBtn.style.display = 'inline-block';
+    nextBtn.textContent = `CAP. ${chapters[nextIdx].id}: ${chapters[nextIdx].mapTitle.slice(0,18)}... ➜`;
+    hint.textContent = '';
+  } else if (nextIdx < chapters.length) {
+    nextBtn.style.display = 'none';
+    hint.textContent = '🔜 El siguiente capítulo estará disponible pronto';
+  } else {
+    nextBtn.style.display = 'none';
+    hint.textContent = '🏆 ¡COMPLETASTE TODOS LOS CAPÍTULOS!';
+  }
+}
+
+function nextChapter() {
+  const nextIdx = currentChapter + 1;
+  if (nextIdx < chapters.length && chapters[nextIdx].pages.length > 0) {
+    startChapter(nextIdx);
+  } else {
+    goTo('screen-map');
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════════════
+function goTo(screenId) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(screenId).classList.add('active');
+  window.scrollTo(0, 0);
+  if (screenId === 'screen-map') renderMap();
+}
+
+function launchConfetti() {
+  const colors = ['#f7c948','#ff6b35','#2563eb','#16a34a','#dc2626','#ffffff'];
+  const area = document.getElementById('confetti-area');
+  area.innerHTML = '';
+  for (let i = 0; i < 50; i++) {
+    const p = document.createElement('div');
+    p.className = 'confetti-piece';
+    p.style.cssText = `left:${Math.random()*100}%;background:${colors[Math.floor(Math.random()*colors.length)]};border-radius:${Math.random()>0.5?'50%':'0'};animation-duration:${1.5+Math.random()*2}s;animation-delay:${Math.random()}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;`;
+    area.appendChild(p);
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// INFO MODAL
+// ═══════════════════════════════════════════════════
+function showInfo() {
+  const ch = chapters[currentChapter];
+  const extra = ch.pageExtras && ch.pageExtras[currentPage];
+  
+  if (extra) {
+    const modal = document.getElementById('info-modal');
+    const content = document.getElementById('info-modal-content');
+    const titleEl = document.querySelector('.info-modal-title');
+    
+    titleEl.textContent = extra.title;
+    content.innerHTML = extra.content;
+    modal.classList.add('show');
+    document.body.style.overflow = 'hidden';
+  }
+}
+
+function closeInfo() {
+  const modal = document.getElementById('info-modal');
+  modal.classList.remove('show');
+  document.body.style.overflow = '';
+}
+
+// ═══════════════════════════════════════════════════
+// SEARCH (BUSCAR OBJETOS)
+// ═══════════════════════════════════════════════════
+function startSearch() {
+  const ch = chapters[currentChapter];
+  if (!ch.searchImage || !ch.searchObjects) {
+    goToQuestion();
+    return;
+  }
+  
+  // Primero limpiar marcadores existentes del DOM
+  clearSearchMarkers();
+  
+  // Luego resetear variables
+  searchLives = 3;
+  searchObjectsFound = 0;
+  foundObjects = [];
+  
+  document.getElementById('search-image').src = ch.searchImage;
+  document.getElementById('search-title').textContent = `🔍 CAPÍTULO ${ch.id}: BUSCAR`;
+  updateSearchUI();
+  
+  goTo('screen-search');
+}
+
+function updateSearchUI() {
+  const ch = chapters[currentChapter];
+  
+  // Actualizar vidas
+  const hearts = document.querySelectorAll('.search-heart');
+  hearts.forEach((heart, idx) => {
+    heart.classList.toggle('lost', idx >= searchLives);
+  });
+  document.getElementById('lives-count').textContent = searchLives;
+  
+  // Mostrar contador de objetos encontrados (sin nombres)
+  const total = ch.searchObjects ? ch.searchObjects.length : 0;
+  document.getElementById('found-count').textContent = searchObjectsFound;
+  document.getElementById('total-count').textContent = total;
+  
+  // Mostrar/ocultar botón continuar
+  document.getElementById('btn-search-next').style.display = 
+    (searchObjectsFound >= ch.searchObjects.length) ? 'inline-block' : 'none';
+}
+
+function handleSearchClick(event) {
+  if (searchLives <= 0) return;
+  
+  const ch = chapters[currentChapter];
+  const img = document.getElementById('search-image');
+  
+  // Calcular posición relativa (0-100%)
+  const rect = img.getBoundingClientRect();
+  const x = ((event.clientX - rect.left) / rect.width) * 100;
+  const y = ((event.clientY - rect.top) / rect.height) * 100;
+  
+  // Buscar si el click coincide con algún objeto NO encontrado aún
+  let foundIndex = -1;
+  for (let i = 0; i < ch.searchObjects.length; i++) {
+    const obj = ch.searchObjects[i];
+    // Saltar si ya fue encontrado
+    if (foundObjects && foundObjects.includes(i)) continue;
+    
+    const distance = Math.sqrt(
+      Math.pow(x - obj.x, 2) + 
+      Math.pow(y - obj.y, 2)
+    );
+    
+    if (distance <= obj.radius) {
+      foundIndex = i;
+      break;
+    }
+  }
+  
+  if (foundIndex >= 0) {
+    // ¡Acertó!
+    addSearchMarker(x, y, true);
+    if (!foundObjects) foundObjects = [];
+    foundObjects.push(foundIndex);
+    searchObjectsFound++;
+    
+    if (searchObjectsFound >= ch.searchObjects.length) {
+      // ¡Completó todos! Ir a victoria
+      updateSearchUI();
+      setTimeout(() => {
+        completedChapters.add(currentChapter);
+        saveProgress();
+        launchConfetti();
+        renderVictory();
+        goTo('screen-victory');
+      }, 1500);
+    } else {
+      updateSearchUI();
+    }
+  } else {
+    // Falló - no acertó ningún objeto
+    addSearchMarker(x, y, false);
+    searchLives--;
+    updateSearchUI();
+    
+    if (searchLives <= 0) {
+      // Game Over
+      setTimeout(() => {
+        clearSearchMarkers();
+        searchLives = 3;
+        searchObjectsFound = 0;
+        foundObjects = [];
+        alert('💔 ¡Se acabaron los intentos! Intenta de nuevo.');
+        goTo('screen-map');
+      }, 500);
+    }
+  }
+}
+
+function addSearchMarker(x, y, success) {
+  const container = document.getElementById('search-container');
+  const marker = document.createElement('div');
+  marker.className = `search-marker ${success ? 'success' : 'fail'}`;
+  marker.style.left = x + '%';
+  marker.style.top = y + '%';
+  marker.innerHTML = success ? '' : '❌';
+  container.appendChild(marker);
+  searchMarkers.push(marker);
+}
+
+function clearSearchMarkers() {
+  const container = document.getElementById('search-container');
+  searchMarkers.forEach(m => m.remove());
+  searchMarkers = [];
+}
+
+function nextSearchObject() {
+  goToQuestion();
+}
+
+// Init
+renderMap();
+</script>
+</body>
+</html>
