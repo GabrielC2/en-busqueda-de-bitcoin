@@ -1302,19 +1302,18 @@ function checkAnswer(btn, isCorrect) {
     
     setTimeout(() => {
       const ch = chapters[currentChapter];
-      // DEBUG
-      console.log('=== DEBUG NIVEL', currentChapter + 1, '===');
-      console.log('searchImage:', ch.searchImage);
-      console.log('searchObjects:', ch.searchObjects);
-      console.log('searchObjects.length:', ch.searchObjects ? ch.searchObjects.length : 'undefined');
-      console.log('Condición:', ch.searchImage && ch.searchObjects && ch.searchObjects.length > 0);
+      // DEBUG - Mostrar en ALERT para ver claramente
+      const debugInfo = `NIVEL ${currentChapter + 1}
+searchImage: ${ch.searchImage || 'NO TIENE'}
+searchObjects: ${ch.searchObjects ? 'SÍ (' + ch.searchObjects.length + ' objetos)' : 'NO TIENE'}
+Condición: ${ch.searchImage && ch.searchObjects && ch.searchObjects.length > 0 ? 'TRUE → Ir a búsqueda' : 'FALSE → Ir a victoria'}`;
+      
+      alert(debugInfo);
       
       // Si hay objetos de búsqueda, ir a búsqueda, si no, a victoria
       if (ch.searchImage && ch.searchObjects && ch.searchObjects.length > 0) {
-        console.log('→ Ir a búsqueda');
         startSearch();
       } else {
-        console.log('→ Ir a victoria (SIN búsqueda)');
         completedChapters.add(currentChapter);
         saveProgress();
         launchConfetti();
