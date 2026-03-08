@@ -1302,10 +1302,19 @@ function checkAnswer(btn, isCorrect) {
     
     setTimeout(() => {
       const ch = chapters[currentChapter];
+      // DEBUG
+      console.log('=== DEBUG NIVEL', currentChapter + 1, '===');
+      console.log('searchImage:', ch.searchImage);
+      console.log('searchObjects:', ch.searchObjects);
+      console.log('searchObjects.length:', ch.searchObjects ? ch.searchObjects.length : 'undefined');
+      console.log('Condición:', ch.searchImage && ch.searchObjects && ch.searchObjects.length > 0);
+      
       // Si hay objetos de búsqueda, ir a búsqueda, si no, a victoria
       if (ch.searchImage && ch.searchObjects && ch.searchObjects.length > 0) {
+        console.log('→ Ir a búsqueda');
         startSearch();
       } else {
+        console.log('→ Ir a victoria (SIN búsqueda)');
         completedChapters.add(currentChapter);
         saveProgress();
         launchConfetti();
