@@ -1091,12 +1091,8 @@ function nextPageOrQuestion() {
     currentPage++;
     renderComic();
   } else {
-    // Si hay objetos de búsqueda, ir a búsqueda, si no, directo a pregunta
-    if (ch.searchImage && ch.searchObjects) {
-      startSearch();
-    } else {
-      goToQuestion();
-    }
+    // Ir a pregunta primero, después búsqueda
+    goToQuestion();
   }
 }
 
@@ -1129,13 +1125,20 @@ function checkAnswer(btn, isCorrect) {
 
   if (isCorrect) {
     btn.classList.add('correct');
-    fb.textContent = '✅ ¡CORRECTO! ¡Capítulo completado!';
+    fb.textContent = '✅ ¡CORRECTO!';
     fb.className = 'feedback-msg show correct';
     completedChapters.add(currentChapter);
+    
     setTimeout(() => {
-      launchConfetti();
-      renderVictory();
-      goTo('screen-victory');
+      const ch = chapters[currentChapter];
+      // Si hay objetos de búsqueda, ir a búsqueda, si no, a victoria
+      if (ch.searchImage && ch.searchObjects && ch.searchObjects.length > 0) {
+        startSearch();
+      } else {
+        launchConfetti();
+        renderVictory();
+        goTo('screen-victory');
+      }
     }, 1500);
   } else {
     btn.classList.add('wrong');
@@ -1312,10 +1315,12 @@ function handleSearchClick(event) {
     currentSearchObjectIndex++;
     
     if (searchObjectsFound >= ch.searchObjects.length) {
-      // ¡Completó todos!
+      // ¡Completó todos! Ir a victoria
       updateSearchUI();
       setTimeout(() => {
-        goToQuestion();
+        launchConfetti();
+        renderVictory();
+        goTo('screen-victory');
       }, 1500);
     } else {
       updateSearchUI();
