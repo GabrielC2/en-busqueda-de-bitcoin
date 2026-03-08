@@ -722,12 +722,69 @@ const chapters = [
       "images/Nivel%203/6.png"
     ],
     pageExtras: [
-      { title: "Más información", content: "<p>Contenido próximamente...</p>" },
-      { title: "Más información", content: "<p>Contenido próximamente...</p>" },
-      { title: "Más información", content: "<p>Contenido próximamente...</p>" },
-      { title: "Más información", content: "<p>Contenido próximamente...</p>" },
-      { title: "Más información", content: "<p>Contenido próximamente...</p>" },
-      { title: "Más información", content: "<p>Contenido próximamente...</p>" }
+      {
+        title: "¿Qué es Bitcoin?",
+        content: `<p>Durante muchos años, el dinero siempre había estado controlado por gobiernos, bancos y diferentes instituciones financieras.</p>
+<p>Pero en <span class="highlight">2009 apareció algo completamente nuevo</span>. Una forma de dinero que no dependía de un banco, ni de un país, ni de una empresa.</p>
+<p>Ese nuevo tipo de dinero se llama <span class="highlight">Bitcoin</span>.</p>
+<p>Bitcoin es un tipo de dinero digital que funciona completamente en internet. No existe en forma física como las monedas o los billetes. Todo vive dentro de una red de computadoras conectadas alrededor del mundo.</p>
+<p>En lugar de que un banco registre quién tiene el dinero, en Bitcoin esa información se guarda en una red distribuida que funciona las 24 horas del día.</p>
+<p>Gracias a esto, las personas pueden enviar y recibir dinero directamente entre ellas, sin necesidad de intermediarios.</p>
+<p>Por primera vez en la historia, existía un tipo de dinero que funcionaba <strong>de forma global, digital y sin depender de un sistema bancario tradicional</strong>.</p>`
+      },
+      {
+        title: "Sin Intermediarios",
+        content: `<p>Durante mucho tiempo, enviar dinero de una persona a otra siempre ha dependido de <span class="highlight">bancos o intermediarios</span>.</p>
+<p>Los bancos funcionan como intermediarios de confianza. Ellos verifican quién envía el dinero, quién lo recibe y si la transacción cumple con sus reglas. Pero eso también significa que tienen control sobre el proceso.</p>
+<p>Una transferencia puede tardar horas o incluso días. Puede tener comisiones. Y en algunos casos, también puede ser rechazada o bloqueada.</p>
+<p>Bitcoin propone una forma diferente de hacer las cosas.</p>
+<p>En lugar de depender de una institución central, Bitcoin permite que las personas <strong>envíen dinero directamente entre ellas</strong>, usando una red global de computadoras conectadas a internet.</p>
+<p>Cuando alguien envía Bitcoin, la transacción se transmite a la red y es verificada por miles de nodos distribuidos alrededor del mundo.</p>
+<p>Por eso muchas veces se dice que Bitcoin funciona como <span class="highlight">dinero entre pares</span>, o "peer to peer". Sin bancos. Sin intermediarios. Solo una red global abierta que conecta a todo el mundo.</p>`
+      },
+      {
+        title: "Red Descentralizada",
+        content: `<p>Cuando una persona envía Bitcoin, lo que realmente está haciendo es crear una transacción digital desde su computadora o su teléfono.</p>
+<p>Esa transacción no va a un banco ni a una empresa para ser aprobada. En lugar de eso, <span class="highlight">se transmite a toda la red de Bitcoin</span>.</p>
+<p>En cuestión de segundos, miles de computadoras conectadas alrededor del mundo reciben esa información. Estas computadoras se conocen como <span class="highlight">nodos</span>.</p>
+<p>Cada nodo mantiene una copia del registro de la red y participa ayudando a verificar que todo funcione correctamente. Verifican que la persona que envía el Bitcoin realmente tenga ese dinero disponible y que no esté intentando gastar las mismas monedas dos veces.</p>
+<p>A diferencia de un banco tradicional, donde existe un servidor central que controla todo, en Bitcoin <strong>la información está repartida entre miles de computadoras</strong>.</p>
+<p>A esto se le llama una <span class="highlight">red descentralizada</span>.</p>
+<p>Esto significa que no hay una sola empresa, gobierno o institución que tenga el control de la red. El sistema funciona porque miles de participantes independientes mantienen la red activa y verifican las transacciones constantemente.</p>`
+      },
+      {
+        title: "La Blockchain",
+        content: `<p>Cuando una persona envía Bitcoin a otra, la transacción no desaparece ni queda solo en el teléfono o la computadora de quien la hizo.</p>
+<p>Esa operación <span class="highlight">se registra dentro de la red de Bitcoin</span>.</p>
+<p>Pero aquí ocurre algo importante. Esa información no se guarda en un solo lugar. Miles de computadoras alrededor del mundo mantienen una copia de esos registros. Estas computadoras forman parte de la red y almacenan la información para que cualquiera pueda verificar lo que ha ocurrido.</p>
+<p>Una forma sencilla de imaginarlo es pensar en un <span class="highlight">gran libro de cuentas público</span>. En ese libro se anotan todos los movimientos que ocurren en la red.</p>
+<p>Y como miles de computadoras tienen una copia del mismo libro, resulta extremadamente difícil alterar la información o borrar transacciones pasadas.</p>
+<p>A este gran registro público y compartido se le conoce como <span class="highlight">blockchain</span>, que en español significa cadena de bloques.</p>
+<p>La blockchain es básicamente el historial completo de todas las transacciones de Bitcoin, almacenado y protegido por una red global de computadoras.</p>
+<p>Gracias a este sistema, cualquier persona puede verificar las transacciones y confiar en que los registros no han sido modificados.</p>`
+      },
+      {
+        title: "Minería de Bitcoin",
+        content: `<p>Cuando una persona envía Bitcoin, la transacción no se guarda inmediatamente en la blockchain. Primero debe <span class="highlight">ser verificada por la red</span>.</p>
+<p>Para hacer este trabajo, algunas computadoras dentro de la red se encargan de revisar y organizar las transacciones. Agrupan muchas transacciones y las preparan para añadirlas al registro de la blockchain en forma de un nuevo bloque.</p>
+<p>Pero crear un nuevo bloque no es tan simple. Las computadoras deben resolver un tipo de problema matemático que requiere poder de procesamiento. Es una forma de demostrar que realmente están trabajando para ayudar a mantener la red segura.</p>
+<p>La primera computadora que logra resolver ese problema obtiene el derecho de añadir el nuevo bloque a la blockchain. Y como recompensa por ese trabajo, recibe una cantidad de Bitcoin.</p>
+<p>A este proceso se le conoce como <span class="highlight">minería de Bitcoin</span>.</p>
+<p>Y a las computadoras o personas que participan en este proceso se les llama <span class="highlight">mineros</span>.</p>
+<p>Los mineros cumplen una función muy importante: no solo ayudan a confirmar las transacciones, también contribuyen a mantener la red segura y funcionando sin necesidad de una autoridad central.</p>`
+      },
+      {
+        title: "21 Millones",
+        content: `<p>Durante mucho tiempo, el dinero tradicional ha tenido una característica importante.</p>
+<p>Los gobiernos y bancos centrales pueden <span class="highlight">crear más dinero cuando lo consideran necesario</span>. Esto puede suceder en momentos de crisis, para estimular la economía o para financiar diferentes gastos del gobierno.</p>
+<p>El problema aparece cuando se crea demasiado dinero en poco tiempo. Si hay más dinero persiguiendo la misma cantidad de productos, los precios tienden a subir. A este fenómeno se le conoce como <span class="highlight">inflación</span>.</p>
+<p>Bitcoin fue diseñado con una idea diferente.</p>
+<p>En lugar de permitir que la cantidad de dinero aumente sin límite, el sistema establece <strong>una cantidad máxima que puede existir</strong>.</p>
+<p>En total, solo podrán existir <span class="highlight">21 millones de bitcoins</span>.</p>
+<p>A medida que pasa el tiempo, nuevos bitcoins se crean a través del proceso de minería, pero la cantidad que se genera cada vez es menor. Esto hace que la creación de nuevas monedas sea cada vez más lenta.</p>
+<p>Y lo más importante es que <strong>nadie puede cambiar ese límite fácilmente</strong>. No lo controla un gobierno, ni una empresa, ni un banco central. La red completa sigue las mismas reglas del protocolo.</p>
+<p>Por eso muchas personas consideran que Bitcoin es un tipo de dinero <span class="highlight">escaso por diseño</span>.</p>`
+      }
     ],
     questions: [
       {
