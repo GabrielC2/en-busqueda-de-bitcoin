@@ -307,6 +307,91 @@ body { background: var(--ink); font-family: 'Comic Neue', cursive; overflow-x: h
   max-height: 100%;
 }
 
+/* ═══ SEARCH (BUSCAR OBJETOS) ═══ */
+#screen-search { background: var(--ink); align-items: center; padding: 1rem; min-height: 100vh; }
+.search-container { width: 100%; max-width: 900px; display: flex; flex-direction: column; align-items: center; }
+.search-header { width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding: 0 0.5rem; flex-wrap: wrap; gap: 0.5rem; }
+.search-title { font-family: 'Bangers', cursive; font-size: 1.2rem; color: var(--gold); letter-spacing: 2px; }
+.search-lives { display: flex; gap: 0.3rem; align-items: center; }
+.search-heart { font-size: 1.5rem; transition: all 0.3s; }
+.search-heart.lost { opacity: 0.2; filter: grayscale(1); }
+.search-found { font-family: 'Space Mono', monospace; font-size: 0.9rem; color: var(--green); background: rgba(22,163,74,0.2); padding: 0.3rem 0.8rem; border-radius: 4px; border: 1px solid var(--green); }
+
+.search-image-container { 
+  position: relative; 
+  width: 100%; 
+  max-width: 800px;
+  background: var(--paper);
+  border-radius: 8px;
+  overflow: visible;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+}
+.search-image { 
+  width: 100%; 
+  height: auto; 
+  display: block;
+  cursor: crosshair;
+  border-radius: 8px;
+}
+
+/* Markers */
+.search-marker { 
+  position: absolute; 
+  pointer-events: none;
+  animation: markerPop 0.3s ease;
+}
+@keyframes markerPop { 
+  0% { transform: scale(0); opacity: 0; } 
+  50% { transform: scale(1.2); } 
+  100% { transform: scale(1); opacity: 1; } 
+}
+.search-marker.success { 
+  width: 60px; 
+  height: 60px; 
+  border: 4px solid var(--green); 
+  border-radius: 50%; 
+  background: rgba(22,163,74,0.2);
+  transform: translate(-50%, -50%);
+}
+.search-marker.fail { 
+  font-size: 3rem; 
+  color: var(--red); 
+  transform: translate(-50%, -50%);
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+.search-instructions { 
+  margin-top: 1rem; 
+  text-align: center; 
+  color: rgba(255,255,255,0.7); 
+  font-size: 0.9rem;
+}
+.search-object-name { 
+  color: var(--gold); 
+  font-family: 'Bangers', cursive; 
+  font-size: 1.3rem; 
+  letter-spacing: 2px;
+}
+
+.search-nav { 
+  width: 100%; 
+  max-width: 800px;
+  display: flex; 
+  justify-content: center; 
+  margin-top: 1.2rem; 
+}
+
+@media (max-width: 768px) {
+  #screen-search { padding: 0.5rem; }
+  .search-header { padding: 0.5rem; }
+  .search-title { font-size: 1rem; order: 3; width: 100%; text-align: center; }
+  .search-heart { font-size: 1.3rem; }
+  .search-image-container { border-radius: 4px; }
+  .search-marker.success { width: 50px; height: 50px; border-width: 3px; }
+  .search-marker.fail { font-size: 2.5rem; }
+  .search-object-name { font-size: 1.1rem; }
+}
+
 /* ═══ QUESTION ═══ */
 #screen-question { background: var(--ink); align-items: center; justify-content: center; padding: 2rem; }
 .question-box { max-width: 600px; width: 100%; text-align: center; }
@@ -420,6 +505,37 @@ body { background: var(--ink); font-family: 'Comic Neue', cursive; overflow-x: h
   </div>
 </div>
 
+<!-- ═══════════════ BUSCAR OBJETOS ═══════════════ -->
+<div class="screen" id="screen-search">
+  <div class="search-container">
+    <div class="search-header">
+      <button class="back-btn" onclick="goTo('screen-map')">← MAPA</button>
+      <div class="search-title" id="search-title">🔍 ENCUENTRA LOS OBJETOS</div>
+      <div class="search-lives" id="search-lives">
+        <span class="search-heart">❤️</span>
+        <span class="search-heart">❤️</span>
+        <span class="search-heart">❤️</span>
+      </div>
+    </div>
+    
+    <div class="search-object-name" id="search-object-name">
+      Busca: <span id="current-object-name">Satoshi Nakamoto</span>
+    </div>
+    
+    <div class="search-image-container" id="search-container">
+      <img class="search-image" id="search-image" src="" alt="Escena de búsqueda" onclick="handleSearchClick(event)">
+    </div>
+    
+    <div class="search-instructions">
+      Haz click en el objeto oculto. ¡Tienes <strong id="lives-count">3</strong> intentos!
+    </div>
+    
+    <div class="search-nav">
+      <button class="nav-btn" id="btn-search-next" style="display:none" onclick="nextSearchObject()">CONTINUAR ➜</button>
+    </div>
+  </div>
+</div>
+
 <!-- ═══════════════ PREGUNTA ═══════════════ -->
 <div class="screen" id="screen-question">
   <div class="question-box">
@@ -456,6 +572,12 @@ body { background: var(--ink); font-family: 'Comic Neue', cursive; overflow-x: h
 let currentChapter = 0;
 let currentPage = 0;
 let completedChapters = new Set();
+
+// Search state
+let searchLives = 3;
+let searchObjectsFound = 0;
+let currentSearchObjectIndex = 0;
+let searchMarkers = [];
 
 // ═══════════════════════════════════════════════════
 // CHAPTER DATA
@@ -594,7 +716,15 @@ const chapters = [
         { icon: "⛏️", label: "Genesis", value: "3 ENE 2009" },
         { icon: "₿", label: "Recompensa", value: "50 BTC" }
       ]
-    }
+    },
+    // Escenario de búsqueda
+    searchImage: "images/nivel%201/1772958242991.png",
+    searchObjects: [
+      { name: "Satoshi Nakamoto", x: 45, y: 35, radius: 6 },
+      { name: "Bitcoin Logo", x: 75, y: 25, radius: 5 },
+      { name: "Libro Blanco", x: 25, y: 60, radius: 5 },
+      { name: "Fecha 2009", x: 80, y: 70, radius: 5 }
+    ]
   },
   // Capítulo 2
   {
@@ -961,7 +1091,12 @@ function nextPageOrQuestion() {
     currentPage++;
     renderComic();
   } else {
-    goToQuestion();
+    // Si hay objetos de búsqueda, ir a búsqueda, si no, directo a pregunta
+    if (ch.searchImage && ch.searchObjects) {
+      startSearch();
+    } else {
+      goToQuestion();
+    }
   }
 }
 
@@ -1105,6 +1240,121 @@ function closeInfo() {
   const modal = document.getElementById('info-modal');
   modal.classList.remove('show');
   document.body.style.overflow = '';
+}
+
+// ═══════════════════════════════════════════════════
+// SEARCH (BUSCAR OBJETOS)
+// ═══════════════════════════════════════════════════
+function startSearch() {
+  const ch = chapters[currentChapter];
+  if (!ch.searchImage || !ch.searchObjects) {
+    goToQuestion();
+    return;
+  }
+  
+  searchLives = 3;
+  searchObjectsFound = 0;
+  currentSearchObjectIndex = 0;
+  searchMarkers = [];
+  
+  document.getElementById('search-image').src = ch.searchImage;
+  document.getElementById('search-title').textContent = `🔍 CAPÍTULO ${ch.id}: BUSCAR`;
+  updateSearchUI();
+  clearSearchMarkers();
+  
+  goTo('screen-search');
+}
+
+function updateSearchUI() {
+  const ch = chapters[currentChapter];
+  
+  // Actualizar vidas
+  const hearts = document.querySelectorAll('.search-heart');
+  hearts.forEach((heart, idx) => {
+    heart.classList.toggle('lost', idx >= searchLives);
+  });
+  document.getElementById('lives-count').textContent = searchLives;
+  
+  // Actualizar objeto actual
+  const currentObj = ch.searchObjects[currentSearchObjectIndex];
+  document.getElementById('current-object-name').textContent = currentObj ? currentObj.name : '¡Completado!';
+  
+  // Mostrar/ocultar botón continuar
+  document.getElementById('btn-search-next').style.display = 
+    (searchObjectsFound >= ch.searchObjects.length) ? 'inline-block' : 'none';
+}
+
+function handleSearchClick(event) {
+  if (searchLives <= 0) return;
+  
+  const ch = chapters[currentChapter];
+  const container = document.getElementById('search-container');
+  const img = document.getElementById('search-image');
+  
+  // Calcular posición relativa (0-100%)
+  const rect = img.getBoundingClientRect();
+  const x = ((event.clientX - rect.left) / rect.width) * 100;
+  const y = ((event.clientY - rect.top) / rect.height) * 100;
+  
+  const currentObj = ch.searchObjects[currentSearchObjectIndex];
+  if (!currentObj) return;
+  
+  // Verificar si acertó
+  const distance = Math.sqrt(
+    Math.pow(x - currentObj.x, 2) + 
+    Math.pow(y - currentObj.y, 2)
+  );
+  
+  if (distance <= currentObj.radius) {
+    // ¡Acertó!
+    addSearchMarker(x, y, true);
+    searchObjectsFound++;
+    currentSearchObjectIndex++;
+    
+    if (searchObjectsFound >= ch.searchObjects.length) {
+      // ¡Completó todos!
+      updateSearchUI();
+      setTimeout(() => {
+        goToQuestion();
+      }, 1500);
+    } else {
+      updateSearchUI();
+    }
+  } else {
+    // Falló
+    addSearchMarker(x, y, false);
+    searchLives--;
+    updateSearchUI();
+    
+    if (searchLives <= 0) {
+      // Game Over
+      setTimeout(() => {
+        alert('💔 ¡Se acabaron los intentos! Intenta de nuevo.');
+        goTo('screen-map');
+      }, 500);
+    }
+  }
+}
+
+function addSearchMarker(x, y, success) {
+  const container = document.getElementById('search-container');
+  const marker = document.createElement('div');
+  marker.className = `search-marker ${success ? 'success' : 'fail'}`;
+  marker.style.left = x + '%';
+  marker.style.top = y + '%';
+  marker.innerHTML = success ? '' : '❌';
+  container.appendChild(marker);
+  searchMarkers.push(marker);
+}
+
+function clearSearchMarkers() {
+  const container = document.getElementById('search-container');
+  searchMarkers.forEach(m => m.remove());
+  searchMarkers = [];
+}
+
+function nextSearchObject() {
+  goToQuestion();
 }
 
 // Init
