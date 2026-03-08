@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Debug - Nivel 5 Objetos de Búsqueda</title>
+<style>
+body { margin: 0; padding: 20px; background: #1a1a2e; font-family: sans-serif; color: white; }
+h1 { color: #f7c948; }
+.container { position: relative; max-width: 800px; margin: 0 auto; }
+img { width: 100%; height: auto; border-radius: 8px; }
+.marker { position: absolute; border: 3px solid; border-radius: 50%; pointer-events: none; }
+.marker.found { border-color: #16a34a; background: rgba(22,163,74,0.2); }
+.label { position: absolute; background: #f7c948; color: #1a1a2e; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; white-space: nowrap; transform: translate(-50%, -150%); }
+.controls { margin: 20px 0; }
+button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+input { padding: 5px; margin: 5px; width: 60px; }
+.info { background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; margin: 20px 0; }
+</style>
+</head>
+<body>
+<h1>🔍 Debug - Objetos de Búsqueda NIVEL 5</h1>
+
+<div class="info">
+  <p><strong>Coordenadas actuales:</strong></p>
+  <div id="coords"></div>
+</div>
+
+<div class="controls">
+  <p>Selecciona un objeto y ajusta sus coordenadas:</p>
+  <select id="objectSelect" onchange="selectObject()">
+    <option value="0">Objeto 1</option>
+    <option value="1">Objeto 2</option>
+    <option value="2">Objeto 3</option>
+    <option value="3">Objeto 4</option>
+  </select>
+  <br>
+  <label>X: <input type="number" id="inputX" value="50" onchange="updateMarker()">%</label>
+  <label>Y: <input type="number" id="inputY" value="50" onchange="updateMarker()">%</label>
+  <label>Radio: <input type="number" id="inputR" value="7" onchange="updateMarker()">%</label>
+  <br>
+  <button onclick="copyCoords()">📋 Copiar coordenadas JSON</button>
+</div>
+
+<div class="container" id="imgContainer">
+  <img src="images/Nivel%205/NIVEL5CUARTO.png" alt="Escena Nivel 5" onclick="clickImage(event)">
+</div>
+
+<p style="color: #888; font-size: 12px;">💡 Haz click en la imagen para mover el objeto seleccionado a esa posición</p>
+
+<script>
+const objects = [
+  { name: "Objeto 1", x: 50, y: 50, radius: 7 },
+  { name: "Objeto 2", x: 50, y: 50, radius: 7 },
+  { name: "Objeto 3", x: 50, y: 50, radius: 7 },
+  { name: "Objeto 4", x: 50, y: 50, radius: 7 }
+];
+
+let selectedIndex = 0;
+
+function renderMarkers() {
+  const container = document.getElementById('imgContainer');
+  
+  // Limpiar marcadores anteriores
+  container.querySelectorAll('.marker, .label').forEach(m => m.remove());
+  
+  objects.forEach((obj, idx) => {
+    const marker = document.createElement('div');
+    marker.className = 'marker found';
+    marker.style.left = obj.x + '%';
+    marker.style.top = obj.y + '%';
+    marker.style.width = (obj.radius * 2) + '%';
+    marker.style.height = 'auto';
+    marker.style.aspectRatio = '1';
+    marker.style.transform = 'translate(-50%, -50%)';
+    
+    if (idx === selectedIndex) {
+      marker.style.borderWidth = '4px';
+      marker.style.borderColor = '#f7c948';
+    }
+    
+    const label = document.createElement('div');
+    label.className = 'label';
+    label.style.left = obj.x + '%';
+    label.style.top = obj.y + '%';
+    label.textContent = (idx + 1) + '. ' + obj.name;
+    
+    container.appendChild(marker);
+    container.appendChild(label);
+  });
+  
+  // Mostrar coordenadas
+  document.getElementById('coords').innerHTML = objects.map((o, i) => 
+    `<span style="margin-right:15px">${i+1}. ${o.name}: (${o.x}%, ${o.y}%) r=${o.radius}</span>`
+  ).join('');
+}
+
+function selectObject() {
+  selectedIndex = parseInt(document.getElementById('objectSelect').value);
+  const obj = objects[selectedIndex];
+  document.getElementById('inputX').value = obj.x;
+  document.getElementById('inputY').value = obj.y;
+  document.getElementById('inputR').value = obj.radius;
+  renderMarkers();
+}
+
+function updateMarker() {
+  objects[selectedIndex].x = parseFloat(document.getElementById('inputX').value);
+  objects[selectedIndex].y = parseFloat(document.getElementById('inputY').value);
+  objects[selectedIndex].radius = parseFloat(document.getElementById('inputR').value);
+  renderMarkers();
+}
+
+function clickImage(event) {
+  const img = event.target;
+  const rect = img.getBoundingClientRect();
+  const x = Math.round(((event.clientX - rect.left) / rect.width) * 100);
+  const y = Math.round(((event.clientY - rect.top) / rect.height) * 100);
+  
+  objects[selectedIndex].x = x;
+  objects[selectedIndex].y = y;
+  document.getElementById('inputX').value = x;
+  document.getElementById('inputY').value = y;
+  renderMarkers();
+}
+
+function copyCoords() {
+  const json = JSON.stringify(objects, null, 2);
+  navigator.clipboard.writeText(json).then(() => {
+    alert('✅ Coordenadas copiadas al portapapeles!\n\n' + json);
+  });
+}
+
+// Inicializar
+renderMarkers();
+</script>
+</body>
+</html>
