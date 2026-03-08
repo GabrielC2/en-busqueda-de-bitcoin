@@ -464,9 +464,10 @@ body { background: var(--ink); font-family: 'Comic Neue', cursive; overflow-x: h
     <div class="intro-desc">
       <strong style="color:var(--gold)">¿Cómo funciona este juego?</strong>
       <div class="intro-steps" style="margin-top:0.8rem">
-        <div class="step-row"><span class="step-icon">📖</span><span>Lee el <strong>cómic</strong> de cada capítulo</span></div>
-        <div class="step-row"><span class="step-icon">❓</span><span>Responde la <strong>pregunta</strong> de control</span></div>
-        <div class="step-row"><span class="step-icon">🏆</span><span>¡Desbloquea el siguiente capítulo!</span></div>
+        <div class="step-row"><span class="step-icon">📖</span><span><strong>Lee el cómic</strong> de cada capítulo<br><small style="color:var(--text2)">Descubre cómo nació Bitcoin y qué problema vino a resolver.</small></span></div>
+        <div class="step-row"><span class="step-icon">❓</span><span><strong>Responde la pregunta</strong> de control<br><small style="color:var(--text2)">Demuestra que entendiste el capítulo.</small></span></div>
+        <div class="step-row"><span class="step-icon">🔎</span><span><strong>Encuentra los objetos</strong> escondidos<br><small style="color:var(--text2)">Explora la escena y localiza los elementos relacionados con la historia.</small></span></div>
+        <div class="step-row"><span class="step-icon">🏆</span><span><strong>Desbloquea el siguiente</strong> capítulo<br><small style="color:var(--text2)">Cada paso te acerca más a comprender Bitcoin.</small></span></div>
       </div>
     </div>
     <button class="btn-primary" onclick="startGame()">¡COMENZAR LA AVENTURA! ⚡</button>
@@ -1571,8 +1572,9 @@ function handleSearchClick(event) {
     searchObjectsFound++;
     
     if (searchObjectsFound >= ch.searchObjects.length) {
-      // ¡Completó todos! Ir a victoria
+      // ¡Completó todos! Ocultar botón para evitar que interrumpa, ir a victoria
       updateSearchUI();
+      document.getElementById('btn-search-next').style.display = 'none';
       setTimeout(() => {
         completedChapters.add(currentChapter);
         saveProgress();
