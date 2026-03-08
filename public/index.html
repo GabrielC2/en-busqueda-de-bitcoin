@@ -1127,7 +1127,7 @@ function checkAnswer(btn, isCorrect) {
     btn.classList.add('correct');
     fb.textContent = '✅ ¡CORRECTO!';
     fb.className = 'feedback-msg show correct';
-    completedChapters.add(currentChapter);
+    // NO marcar como completado aquí, se marca al final de la búsqueda o victoria
     
     setTimeout(() => {
       const ch = chapters[currentChapter];
@@ -1135,6 +1135,7 @@ function checkAnswer(btn, isCorrect) {
       if (ch.searchImage && ch.searchObjects && ch.searchObjects.length > 0) {
         startSearch();
       } else {
+        completedChapters.add(currentChapter);
         launchConfetti();
         renderVictory();
         goTo('screen-victory');
