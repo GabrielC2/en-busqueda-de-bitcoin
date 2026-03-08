@@ -551,7 +551,7 @@ body { background: var(--ink); font-family: 'Comic Neue', cursive; overflow-x: h
     </div>
     
     <div class="search-object-name">
-      🔍 Busca: <span id="current-object-name">Satoshi Nakamoto</span>
+      🔍 Objetos encontrados: <span id="found-count">0</span>/<span id="total-count">4</span>
     </div>
     
     <div class="search-image-container" id="search-container">
@@ -1052,6 +1052,14 @@ const chapters = [
         ]
       }
     ],
+    searchImage: "images/Nivel%203/nivel3.png",
+    searchObjects: [
+      { name: "Objeto 1", x: 39, y: 15, radius: 8 },
+      { name: "Objeto 2", x: 86, y: 18, radius: 11 },
+      { name: "Objeto 3", x: 91, y: 50, radius: 9 },
+      { name: "Objeto 4", x: 90, y: 80, radius: 10 },
+      { name: "Objeto 5", x: 51, y: 47, radius: 12 }
+    ],
     victory: {
       emoji: "₿",
       title: "¡CAPÍTULO 3 COMPLETADO!",
@@ -1394,10 +1402,9 @@ function updateSearchUI() {
   });
   document.getElementById('lives-count').textContent = searchLives;
   
-  // Mostrar objetos que faltan encontrar
-  const remaining = ch.searchObjects.filter((obj, idx) => !foundObjects.includes(idx));
-  const names = remaining.map(obj => obj.name).join(', ');
-  document.getElementById('current-object-name').textContent = remaining.length > 0 ? names : '¡Completado!';
+  // Mostrar contador de objetos encontrados (sin nombres)
+  const total = ch.searchObjects.length;
+  document.getElementById('current-object-name').textContent = `${searchObjectsFound}/${total} encontrados`;
   
   // Mostrar/ocultar botón continuar
   document.getElementById('btn-search-next').style.display = 
