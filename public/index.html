@@ -1403,8 +1403,9 @@ function updateSearchUI() {
   document.getElementById('lives-count').textContent = searchLives;
   
   // Mostrar contador de objetos encontrados (sin nombres)
-  const total = ch.searchObjects.length;
-  document.getElementById('current-object-name').textContent = `${searchObjectsFound}/${total} encontrados`;
+  const total = ch.searchObjects ? ch.searchObjects.length : 0;
+  document.getElementById('found-count').textContent = searchObjectsFound;
+  document.getElementById('total-count').textContent = total;
   
   // Mostrar/ocultar botón continuar
   document.getElementById('btn-search-next').style.display = 
